@@ -8,6 +8,8 @@ require.config({
         "squim.types": "../src/squim.types",
         "squim.parser": "../src/squim.parser",
         "squim.error": "../src/squim.error",
+        "squim.util": "../src/squim.util",
+        "squim.ground": "../src/squim.ground",
         "json": "http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2"
     },
 

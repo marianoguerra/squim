@@ -7,7 +7,6 @@ require.config({
         "squim.types": "../src/squim.types",
         "squim.parser": "../src/squim.parser",
         "squim.error": "../src/squim.error",
-        "squim.eval": "../src/squim.eval",
         "squim.util": "../src/squim.util",
         "squim.ground": "../src/squim.ground",
         "jquery": "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min",
@@ -43,7 +42,7 @@ require(['squim', 'jquery'], function (Squim, $) {
                 exp = Squim.parse(getCode()),
                 result;
 
-            result = Squim.eval_(exp, env);
+            result = exp.eval_(env);
             writeResult(result.toJs());
             writeEnv(env.toJs());
         });
