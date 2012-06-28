@@ -1,0 +1,30 @@
+squim - a js implementation of kernel
+=====================================
+
+this project tries to implement an parser and interpreter for the kernel*
+language implemented in javascript.
+
+* http://web.cs.wpi.edu/~jshutt/kernel.html
+
+how?
+----
+
+using jison for parsing and requirejs for modularity.
+
+why?
+----
+
+I need a safe language for webapp customizations in a project and implementing
+the base as a lisp (kernel actually) gives me a solid foundation.
+
+also, never implemented a lisp and want to understand kernel better.
+
+who?
+----
+
+marianoguerra
+
+license?
+--------
+
+MIT + optional beer for the creator
