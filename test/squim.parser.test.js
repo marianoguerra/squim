@@ -105,6 +105,23 @@
                   ["display", 1, 2.3, ["/", 2, 3], "\"asd\"", "foo"]);
         });
 
+        Q.test("representation is the same as the parsed input", function () {
+            function check(expr) {
+                Q.equal(expr, Parser.parse(expr).toString(), expr);
+            }
+
+            check("1");
+            check("1.2");
+            check("()");
+            check('"hi"');
+            check('map');
+            check('(+ 1 2)');
+            check('(+ 1 2 3 4 5 6)');
+            check('(+ 1 2 (- 3 4) (* 5 6))');
+            check('(+ 1 2 (- 3 4) (* 5 6 7 (/ 8 9 10.2)))');
+            check('(+ 1 foo (- 3.5 4234) (* "asd" 6 () (/ 8 9 10.2)))');
+
+        });
     };
 
     return obj;

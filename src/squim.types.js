@@ -28,6 +28,10 @@
         return this.value;
     };
 
+    Symbol.prototype.toString = function () {
+        return this.value;
+    };
+
     Symbol.prototype.eval_ = function (env) {
         var result = env.get(this.value);
 
@@ -46,6 +50,8 @@
         return JSON.stringify(this.value);
     };
 
+    Str.prototype.toString = Str.prototype.toJs;
+
     Str.prototype.eval_ = function (env) {
         return this;
     };
@@ -62,6 +68,10 @@
         return this;
     };
 
+    Int.prototype.toString = function () {
+        return JSON.stringify(this.value);
+    };
+
     function Float(value) {
         this.value = value;
     }
@@ -74,11 +84,17 @@
         return this;
     };
 
+    Float.prototype.toString = function () {
+        return JSON.stringify(this.value);
+    };
+
     function Inert() { }
 
     Inert.prototype.toJs = function () {
         return "#inert";
     };
+
+    Inert.prototype.toString = Inert.prototype.toJs;
 
     Inert.inert = new Inert();
 
@@ -95,6 +111,24 @@
         var result = [this.left.toJs()];
 
         return result.concat(this.right.toJs());
+    };
+
+    Pair.prototype.toString = function () {
+        var parts = [], item = this;
+        parts.push("(");
+
+        while (item !== Pair.nil) {
+            parts.push(item.left.toString());
+
+            if (item.right !== Pair.nil) {
+                parts.push(" ");
+            }
+
+            item = item.right;
+        }
+
+        parts.push(")");
+        return parts.join("");
     };
 
     Pair.prototype.eval_ = function (env) {
