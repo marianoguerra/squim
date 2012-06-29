@@ -236,6 +236,24 @@
             expectError('(cons 1)', Squim.errors.type.BadMatch);
             expectError('(cons 1 2 3)', Squim.errors.type.BadMatch);
         });
+
+        Q.test("make-environment works", function () {
+            var env;
+
+            function check(expr, car, cons) {
+                var result = Squim.run(expr);
+
+                Q.ok(result instanceof Types.Env);
+                return result;
+            }
+
+            env = check("(make-environment)");
+            Q.equal(env.parents.length, 0);
+            Q.ok(Squim.run("(environment? (make-environment))").value);
+            Q.ok(Squim.run("(environment? (get-current-environment))").value);
+            env = check("(make-environment (get-current-environment))");
+            Q.equal(env.parents.length, 1);
+        });
     };
 
     return obj;

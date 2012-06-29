@@ -36,6 +36,7 @@
         CombinerExpected: "CombinerExpected",
         ListExpected: "ListExpected",
         BooleanExpected: "BooleanExpected",
+        EnvironmentExpected: "EnvironmentExpected",
         BadMatch: "BadMatch",
         MutationError: "MutationError"
     };
@@ -54,6 +55,10 @@
 
     obj.BooleanExpected = function (got, ctx) {
         throw makeException(obj.type.BooleanExpected, {got: got, ctx: ctx});
+    };
+
+    obj.EnvironmentExpected = function (got, ctx) {
+        throw makeException(obj.type.EnvironmentExpected, {got: got, ctx: ctx});
     };
 
     obj.BadMatch = function (msg, ctx) {

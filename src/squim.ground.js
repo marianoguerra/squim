@@ -39,6 +39,22 @@
         return new Types.Fun(params, body, env);
     };
 
+    obj.k_make_environment = function (args, env) {
+        var parents = Types.util.pairToArray(args._expand(env), function (item, i) {
+            if (!(item instanceof Types.Env)) {
+                // WARN: I'm not returning here, so if we stop throwing
+                // exceptions it will fail weirdly
+                Error.EnvironmentExpected(item, {args: args, env: env});
+            }
+        });
+
+        return new Types.Env({}, parents);
+    };
+
+    obj.k_get_current_environment = function (args, env) {
+        return env;
+    };
+
     obj.kDefine = function (args, env) {
         var
             name = args.left.value,
@@ -105,6 +121,10 @@
         return obj.allOfType(args._expand(env), Types.Pair);
     };
 
+    obj.k_environment_p = function (args, env) {
+        return obj.allOfType(args._expand(env), Types.Env);
+    };
+
     obj.compareAllToFirst = function (args, env, methodName) {
         var ok = true, first, items = args._expand(env);
 
@@ -166,6 +186,7 @@
             "list": obj.kList,
             "display": obj.kDisplay,
 
+            "environment?": obj.k_environment_p,
             "boolean?": obj.k_boolean_p,
             "symbol?": obj.k_symbol_p,
             "inert?": obj.k_inert_p,
@@ -177,7 +198,9 @@
             "equal?": obj.k_equal_p,
 
             "$if": obj.k_if,
-            "cons": obj.k_cons
+            "cons": obj.k_cons,
+            "make-environment": obj.k_make_environment,
+            "get-current-environment": obj.k_get_current_environment
         }, [], true);
     };
 

@@ -429,6 +429,23 @@
         return new Pair(items[0], obj.util.arrayToPair(items.slice(1)));
     };
 
+    obj.util.pairToArray = function (pair, checkItem) {
+        var result = [], i = 0;
+
+        while (pair !== Pair.nil) {
+            if (checkItem) {
+                checkItem(pair.left, i);
+            }
+
+            result.push(pair.left);
+
+            pair = pair.right;
+            i += 1;
+        }
+
+        return result;
+    };
+
     obj.Str = Str;
     obj.Int = Int;
     obj.Bool = Bool;
@@ -449,4 +466,5 @@
     obj.f = new Bool(false);
 
     return obj;
+
 }));
