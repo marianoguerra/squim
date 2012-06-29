@@ -28,3 +28,11 @@ license?
 --------
 
 MIT + optional beer for the creator
+
+TODO
+----
+
+* case insensitive identifiers
+* support (1 . ())
+* check if copying the formals parameter tree and expr when applying a $vau
+* make native operatives return true on operative? call
