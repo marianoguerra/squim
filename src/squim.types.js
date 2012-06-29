@@ -42,6 +42,16 @@
         }
     };
 
+    Symbol.prototype.eq_p = function (obj) {
+        if (obj instanceof Symbol) {
+            return this.value === obj.value;
+        } else {
+            return false;
+        }
+    };
+
+    Symbol.prototype.equal_p = Symbol.prototype.eq_p;
+
     function Str(value) {
         this.value = value;
     }
@@ -55,6 +65,16 @@
     Str.prototype.eval_ = function (env) {
         return this;
     };
+
+    Str.prototype.eq_p = function (obj) {
+        if (obj instanceof Str) {
+            return this.value === obj.value;
+        } else {
+            return false;
+        }
+    };
+
+    Str.prototype.equal_p = Str.prototype.eq_p;
 
     function Int(value) {
         this.value = value;
@@ -72,6 +92,16 @@
         return JSON.stringify(this.value);
     };
 
+    Int.prototype.eq_p = function (obj) {
+        if (obj instanceof Int) {
+            return this.value === obj.value;
+        } else {
+            return false;
+        }
+    };
+
+    Int.prototype.equal_p = Int.prototype.eq_p;
+
     function Bool(value) {
         this.value = value;
     }
@@ -87,6 +117,16 @@
     Bool.prototype.toString = function () {
         return (this.value) ? "#t" : "#f";
     };
+
+    Bool.prototype.eq_p = function (obj) {
+        if (obj instanceof Bool) {
+            return this.value === obj.value;
+        } else {
+            return false;
+        }
+    };
+
+    Bool.prototype.equal_p = Bool.prototype.eq_p;
 
     function Float(value) {
         this.value = value;
@@ -104,6 +144,16 @@
         return JSON.stringify(this.value);
     };
 
+    Float.prototype.eq_p = function (obj) {
+        if (obj instanceof Float) {
+            return this.value === obj.value;
+        } else {
+            return false;
+        }
+    };
+
+    Float.prototype.equal_p = Float.prototype.eq_p;
+
     function Inert() { }
 
     Inert.prototype.toJs = function () {
@@ -116,6 +166,18 @@
 
     Inert.prototype.eval_ = function (env) {
         return this;
+    };
+
+    Inert.prototype.eq_p = function (obj) {
+        if (obj instanceof Inert) {
+            return this === obj;
+        } else {
+            return false;
+        }
+    };
+
+    Inert.prototype.equal_p = function (obj) {
+        return (obj instanceof Inert);
     };
 
     function Pair(left, right) {
@@ -147,6 +209,14 @@
         return parts.join("");
     };
 
+    Pair.prototype.eq_p = function (obj) {
+        return this === obj;
+    };
+
+    Pair.prototype.equal_p = function (obj) {
+        return (this === obj || (this.left.equal_p(obj.left) && this.right.equal_p(obj.right)));
+    };
+
     // Note: Pair.eval_ is defined at the bottom to have access to all definitions
 
     Pair.prototype._expand = function (env) {
@@ -170,6 +240,18 @@
 
     Pair.Nil.prototype.toJs = function () {
         return [];
+    };
+
+    Pair.Nil.prototype.eq_p = function (obj) {
+        if (obj instanceof Pair.Nil) {
+            return this === obj;
+        } else {
+            return false;
+        }
+    };
+
+    Pair.Nil.prototype.equal_p = function (obj) {
+        return (obj instanceof Pair.Nil);
     };
 
     Pair.nil = new Pair.Nil();
@@ -207,6 +289,8 @@
         return this.body.eval_(newEnv);
     };
 
+    // TODO: eq_p and equal_p for Fun
+
     function Operative(params, body, env) {
         this.params = params;
         this.env = env;
@@ -239,6 +323,8 @@
 
         return this.body.eval_(newEnv);
     };
+
+    // TODO: eq_p and equal_p for Operative
 
     Pair.prototype.eval_ = function (env) {
         var

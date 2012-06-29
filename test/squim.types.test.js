@@ -89,6 +89,30 @@
             check('(eq? foo (list 2))', false);
             check('(eq? foo bar (list 2))', false);
         });
+
+        Q.test("equal? works", function () {
+            var
+                val = new Types.Pair(new Types.Int(2), Types.nil),
+                env = new Types.Env({"foo": val, "bar": val}, [Types.Env.makeGround()]);
+
+            function check(expr, result) {
+                Q.equal(Squim.run(expr, env).value, result);
+            }
+
+            check("(equal?)", true);
+            check("(equal? #t)", true);
+            check("(equal? #t #t)", true);
+            check("(equal? #t #t #t)", true);
+            check("(equal? #t #f)", false);
+            check("(equal? 1 1)", true);
+            check("(equal? 1 2)", false);
+            check('(equal? "asd" "asd")', true);
+            check('(equal? (list) (list))', true);
+            check('(equal? (list 1) (list 1))', true);
+            check('(equal? foo bar)', true);
+            check('(equal? foo (list 2))', true);
+            check('(equal? foo bar (list 2))', true);
+        });
     };
 
     return obj;

@@ -85,29 +85,17 @@
         return obj.allOfType(args._expand(env), Types.Bool);
     };
 
-    obj.k_eq_p = function (args, env) {
-        var ok = true, first, items = args._expand(env),
-            leftValue, firstValue;
+
+    obj.compareAllToFirst = function (args, env, methodName) {
+        var ok = true, first, items = args._expand(env);
 
         while (items !== Types.nil) {
             if (first === undefined) {
                 first = items.left;
-
-                if (first.value !== undefined) {
-                    firstValue = first.value;
-                } else {
-                    firstValue = first;
-                }
                 continue;
             }
 
-            if (items.left.value !== undefined) {
-                leftValue = items.left.value;
-            } else {
-                leftValue = items.left;
-            }
-
-            if (leftValue !== firstValue) {
+            if (!items.left[methodName](first)) {
                 ok = false;
                 break;
             }
@@ -116,6 +104,14 @@
         }
 
         return (ok) ? Types.t : Types.f;
+    };
+
+    obj.k_eq_p = function (args, env) {
+        return obj.compareAllToFirst(args, env, "eq_p");
+    };
+
+    obj.k_equal_p = function (args, env) {
+        return obj.compareAllToFirst(args, env, "equal_p");
     };
 
     obj.makeGround = function () {
@@ -127,7 +123,8 @@
             "display": obj.kDisplay,
 
             "boolean?": obj.k_boolean_p,
-            "eq?": obj.k_eq_p
+            "eq?": obj.k_eq_p,
+            "equal?": obj.k_equal_p
         }, [], true);
     };
 
