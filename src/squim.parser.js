@@ -352,28 +352,30 @@ lexer.performAction = function anonymous(yy,yy_,$avoiding_name_collisions,YY_STA
 
 var YYSTATE=YY_START
 switch($avoiding_name_collisions) {
-case 0:/* skip whitespace */
+case 0:/* ignore */
 break;
-case 1:return 10
+case 1:/* skip whitespace */
 break;
-case 2:return 9
+case 2:return 10
 break;
-case 3:return 11
+case 3:return 9
 break;
-case 4:return 12
+case 4:return 11
 break;
-case 5:return 7
+case 5:return 12
 break;
-case 6:return 8
+case 6:return 7
 break;
-case 7:return 5
+case 7:return 8
 break;
-case 8:return 'INVALID'
+case 8:return 5
+break;
+case 9:return 'INVALID'
 break;
 }
 };
-lexer.rules = [/^\s+/,/^[0-9]+\.[0-9]+\b/,/^[0-9]+\b/,/^".*?"/,/^[A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+/,/^\(/,/^\)/,/^$/,/^./];
-lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8],"inclusive":true}};
+lexer.rules = [/^;.*$/,/^\s+/,/^[0-9]+\.[0-9]+\b/,/^[0-9]+\b/,/^".*?"/,/^[A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+/,/^\(/,/^\)/,/^$/,/^./];
+lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9],"inclusive":true}};
 return lexer;})()
 parser.lexer = lexer;
 return parser;

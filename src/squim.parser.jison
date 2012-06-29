@@ -4,6 +4,7 @@
 %lex
 %%
 
+";".*$                 /* ignore */
 \s+                    /* skip whitespace */
 [0-9]+"."[0-9]+\b      return 'DECIMAL'
 [0-9]+\b               return 'INTEGER'

@@ -122,6 +122,27 @@
             check('(+ 1 foo (- 3.5 4234) (* "asd" 6 () (/ 8 9 10.2)))');
 
         });
+
+        Q.test("ignores comments", function () {
+            function check(expr) {
+                var cleanExpr = expr.replace(/ *;.*/, ""),
+                    reconstructed = Parser.parse(expr).toString();
+
+                Q.equal(cleanExpr, reconstructed, "'" + expr + "' '" + cleanExpr + "' '" + reconstructed + "'");
+            }
+
+            check("1 ; a number");
+            check("1.2 ; a float");
+            check("();empty list");
+            check('"hi";;;;;;;;;;;;');
+            check('map ; ; ;   ;;;');
+            check('(+ 1 2) ; adition');
+            check('(+ 1 2 3 4 5 6)                 ;');
+            check('(+ 1 2 (- 3 4) (* 5 6))       ;               asd');
+            check('(+ 1 2 (- 3 4) (* 5 6 7 (/ 8 9 10.2))) ; (+ 1 2)');
+            check('(+ 1 foo (- 3.5 4234) (* "asd" 6 () (/ 8 9 10.2))) ; 12');
+
+        });
     };
 
     return obj;
