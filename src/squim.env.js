@@ -1,24 +1,24 @@
-/*global define*/
+/*global define SquimError*/
 (function (root, factory) {
     "use strict";
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define([], function () {
+        define(['squim.error'], function (Error) {
             // Also create a global in case some scripts
             // that are loaded still are looking for
             // a global even when an AMD loader is in use.
-            return (root.SquimEnv = factory());
+            return (root.SquimEnv = factory(Error));
         });
     } else {
         // Browser globals
-        root.SquimEnv = factory();
+        root.SquimEnv = factory(SquimError);
     }
 
-}(this, function () {
+}(this, function (Error) {
     "use strict";
 
-    function Env(bindings, parents) {
+    function Env(bindings, parents, inmutable) {
 
         if (bindings === undefined) {
             bindings = {};
@@ -30,10 +30,15 @@
 
         this.parents = parents;
         this.bindings = bindings;
+        this.inmutable = (inmutable === true);
     }
 
     Env.prototype.define = function (name, value) {
-        this.bindings[name] = value;
+        if (this.inmutable) {
+            return Error.MutationError("can't mutate inmutable environment", {name: name, value: value});
+        } else {
+            this.bindings[name] = value;
+        }
     };
 
     Env.prototype.get = function (name) {

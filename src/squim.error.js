@@ -34,7 +34,8 @@
     obj.type = {
         UnboundSymbol: "UnboundSymbol",
         CombinerExpected: "CombinerExpected",
-        BadMatch: "BadMatch"
+        BadMatch: "BadMatch",
+        MutationError: "MutationError"
     };
 
     obj.UnboundSymbol = function (name, ctx) {
@@ -47,6 +48,10 @@
 
     obj.BadMatch = function (msg, ctx) {
         throw makeException(obj.type.BadMatch, {msg: msg, ctx: ctx});
+    };
+
+    obj.MutationError = function (msg, ctx) {
+        throw makeException(obj.type.MutationError, {msg: msg, ctx: ctx});
     };
 
     return obj;
