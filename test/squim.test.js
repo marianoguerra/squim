@@ -1,5 +1,5 @@
 /*global define require SquimEnvTest SquimPairTest SquimParserTest
-        SquimSymbolTest*/
+        SquimSymbolTest SquimUtilTest*/
 
 require.config({
     paths: {
@@ -29,20 +29,20 @@ require.config({
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define(['squim.env.test', 'squim.pair.test', 'squim.parser.test',
-                'squim.symbol.test'],
-                function (EnvTest, PairTest, ParserTest, SymbolTest) {
+                'squim.symbol.test', 'squim.util.test'],
+                function (EnvTest, PairTest, ParserTest, SymbolTest, UtilTest) {
             // Also create a global in case some scripts
             // that are loaded still are looking for
             // a global even when an AMD loader is in use.
             return (root.SquimTest = factory(EnvTest, PairTest, ParserTest,
-                                            SymbolTest));
+                                            SymbolTest, UtilTest));
         });
     } else {
         // Browser globals
         root.SquimTest = factory(SquimEnvTest, SquimPairTest, SquimParserTest,
-                                SquimSymbolTest);
+                                SquimSymbolTest, SquimUtilTest);
     }
-}(this, function (EnvTest, PairTest, ParserTest, SymbolTest) {
+}(this, function (EnvTest, PairTest, ParserTest, SymbolTest, UtilTest) {
     "use strict";
     var obj = {};
 
@@ -51,6 +51,7 @@ require.config({
         PairTest.test();
         ParserTest.test();
         SymbolTest.test();
+        UtilTest.test();
     };
 
     obj.test();
