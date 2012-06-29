@@ -38,11 +38,8 @@ require(['squim', 'jquery'], function (Squim, $) {
 
     $(function () {
         $("#run").click(function () {
-            var
-                exp = Squim.parse(getCode()),
-                result;
+            var result = Squim.run(getCode(), env);
 
-            result = exp.eval_(env);
             writeResult(result.toJs());
             writeEnv(env.toJs());
         });

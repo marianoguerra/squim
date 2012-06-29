@@ -21,8 +21,20 @@
 
     obj.types = Types;
     obj.Parser = Parser;
+
     obj.parse = function () {
         return Parser.parse.apply(Parser, arguments);
+    };
+
+    obj.run = function (code, env) {
+        var exp;
+
+        if (env === undefined) {
+            env = obj.types.Env.makeGround();
+        }
+
+        exp = obj.parse(code);
+        return exp.eval_(env);
     };
 
     return obj;
