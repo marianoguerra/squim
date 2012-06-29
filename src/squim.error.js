@@ -35,6 +35,7 @@
         UnboundSymbol: "UnboundSymbol",
         CombinerExpected: "CombinerExpected",
         ListExpected: "ListExpected",
+        BooleanExpected: "BooleanExpected",
         BadMatch: "BadMatch",
         MutationError: "MutationError"
     };
@@ -49,6 +50,10 @@
 
     obj.ListExpected = function (got, ctx) {
         throw makeException(obj.type.ListExpected, {got: got, ctx: ctx});
+    };
+
+    obj.BooleanExpected = function (got, ctx) {
+        throw makeException(obj.type.BooleanExpected, {got: got, ctx: ctx});
     };
 
     obj.BadMatch = function (msg, ctx) {

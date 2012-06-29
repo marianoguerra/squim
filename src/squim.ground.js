@@ -121,6 +121,22 @@
         return obj.compareAllToFirst(args, env, "equal_p");
     };
 
+    obj.k_if = function (args, env) {
+        var
+            parts = Types.util.gatherArguments(args, ["condition", "thenBlock", "elseBlock"]),
+            condResult = parts.condition.eval_(env);
+
+        if (condResult instanceof Types.Bool) {
+            if (condResult.value === true) {
+                return parts.thenBlock.eval_(env);
+            } else {
+                return parts.elseBlock.eval_(env);
+            }
+        } else {
+            return Error.BooleanExpected(condResult, {args: args, env: env});
+        }
+    };
+
     obj.makeGround = function () {
         return new Types.Env({
             "$lambda": obj.kLambda,
@@ -132,8 +148,11 @@
             "boolean?": obj.k_boolean_p,
             "symbol?": obj.k_symbol_p,
             "inert?": obj.k_inert_p,
+
             "eq?": obj.k_eq_p,
-            "equal?": obj.k_equal_p
+            "equal?": obj.k_equal_p,
+
+            "$if": obj.k_if
         }, [], true);
     };
 

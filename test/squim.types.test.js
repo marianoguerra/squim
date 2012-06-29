@@ -83,6 +83,35 @@
             check("(inert? #inert #inert #inert #inert 1)", false);
         });
 
+        Q.test("$if works", function () {
+            function check(expr, result) {
+                Q.equal(Squim.run(expr).value, result);
+            }
+
+            function expectError(expr, errorName) {
+                Q.raises(
+                    function () {
+                        Squim.run(expr);
+                    },
+                    function (error) {
+                        return error.name === errorName;
+                    }
+                );
+            }
+
+            check("($if #t #t #f)", true);
+            check("($if #t #f #t)", false);
+            check('($if (eq? 1 1) "son iguales!" "no seran tan iguales")', "son iguales!");
+            check('($if (eq? 1 1) (boolean? #t) "asd")', true);
+            check('($if (eq? 1 2) (boolean? #t) "asd")', "asd");
+
+            expectError('($if)', Squim.errors.type.BadMatch);
+            expectError('($if #t)', Squim.errors.type.BadMatch);
+            expectError('($if #t 1)', Squim.errors.type.BadMatch);
+            expectError('($if 8 #t #t)', Squim.errors.type.BooleanExpected);
+
+        });
+
         Q.test("symbol? works", function () {
             function check(expr, result) {
                 Q.equal(Squim.run(expr).value, result);

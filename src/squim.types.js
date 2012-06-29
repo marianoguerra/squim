@@ -349,13 +349,13 @@
     obj.util.gatherArguments = function (items, names) {
         var param, arg, args, iargs, params, iparams, bindings = {};
 
-        if (!(items instanceof Pair)) {
+        if (!(items instanceof Pair) && !(items instanceof Pair.Nil)) {
             iargs = args = obj.util.arrayToPair(items);
         } else {
             iargs = args = items;
         }
 
-        if (!(names instanceof Pair)) {
+        if (!(names instanceof Pair) && !(names instanceof Pair.Nil)) {
             iparams = params = obj.util.arrayToPair(names);
         } else {
             iparams = params = names;
