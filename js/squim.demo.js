@@ -22,7 +22,9 @@ require.config({
 
 require(['squim', 'jquery'], function (Squim, $) {
     "use strict";
-    var obj = {}, env = Squim.types.Env.makeGround();
+    var obj = {},
+        ground = Squim.types.Env.makeGround(),
+        env = new Squim.types.Env({}, [ground]);
 
     function getCode() {
         return $("#code").val();

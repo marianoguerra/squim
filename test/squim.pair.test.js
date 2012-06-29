@@ -66,7 +66,8 @@
             var
                 // (list foo bar)
                 pair = new Pair(new Types.Symbol("list"), new Pair(new Types.Symbol("foo"), new Pair(new Types.Symbol("bar"), Pair.nil))),
-                env = Ground.makeGround();
+                ground = Ground.makeGround(),
+                env = new Types.Env({}, [ground]);
 
             env.define("foo", new Types.Int(1));
             env.define("bar", new Types.Int(2));

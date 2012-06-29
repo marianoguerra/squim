@@ -75,7 +75,7 @@
             "apply": obj.kApply,
             "list": obj.kList,
             "display": obj.kDisplay
-        });
+        }, [], true);
     };
 
     Types.Env.makeGround = obj.makeGround;
