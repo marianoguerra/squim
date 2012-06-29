@@ -1,20 +1,20 @@
-/*global define QUnit SquimEnv*/
+/*global define QUnit SquimEnv SquimTypes*/
 (function (root, factory) {
     "use strict";
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['qunit', 'squim.env'], function (Q, Env) {
+        define(['qunit', 'squim.env', 'squim.types'], function (Q, Env, Types) {
             // Also create a global in case some scripts
             // that are loaded still are looking for
             // a global even when an AMD loader is in use.
-            return (root.SquimEnvTest = factory(Q, Env));
+            return (root.SquimEnvTest = factory(Q, Env, Types));
         });
     } else {
         // Browser globals
-        root.SquimEnvTest = factory(QUnit, SquimEnv);
+        root.SquimEnvTest = factory(QUnit, SquimEnv, SquimTypes);
     }
-}(this, function (Q, Env) {
+}(this, function (Q, Env, Types) {
     "use strict";
     var obj = {};
 
@@ -60,6 +60,14 @@
             Q.equal(env.bindings.foo, 4);
         });
 
+        Q.test("define sets the binding when a symbol is used", function () {
+            var env = new Env();
+
+            env.define(new Types.Symbol("foo"), 4);
+
+            Q.equal(env.bindings.foo, 4);
+        });
+
         Q.test("define sets the binding in env when present in parent", function () {
             var
                 parent = new Env({foo: 42}),
@@ -75,6 +83,12 @@
             var env = new Env({foo: 1985});
 
             Q.equal(env.get("foo"), 1985);
+        });
+
+        Q.test("get returns the binding set in env when passing a symbol", function () {
+            var env = new Env({foo: 1985});
+
+            Q.equal(env.get(new Types.Symbol("foo")), 1985);
         });
 
         Q.test("get returns the binding set in parent env", function () {

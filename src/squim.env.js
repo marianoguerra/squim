@@ -54,6 +54,7 @@
         }
     };
 
+    // @internal
     Env.prototype.toJs = function () {
         var i, parents = [];
 
