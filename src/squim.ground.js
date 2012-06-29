@@ -93,6 +93,14 @@
         return obj.allOfType(args._expand(env), Types.Inert);
     };
 
+    obj.k_null_p = function (args, env) {
+        return obj.allOfType(args._expand(env), Types.Pair.Nil);
+    };
+
+    obj.k_pair_p = function (args, env) {
+        return obj.allOfType(args._expand(env), Types.Pair);
+    };
+
     obj.compareAllToFirst = function (args, env, methodName) {
         var ok = true, first, items = args._expand(env);
 
@@ -148,6 +156,8 @@
             "boolean?": obj.k_boolean_p,
             "symbol?": obj.k_symbol_p,
             "inert?": obj.k_inert_p,
+            "null?": obj.k_null_p,
+            "pair?": obj.k_pair_p,
 
             "eq?": obj.k_eq_p,
             "equal?": obj.k_equal_p,

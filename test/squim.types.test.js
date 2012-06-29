@@ -83,6 +83,42 @@
             check("(inert? #inert #inert #inert #inert 1)", false);
         });
 
+        Q.test("null? works", function () {
+            function check(expr, result) {
+                Q.equal(Squim.run(expr).value, result);
+            }
+
+            check("(null?)", true);
+            check("(null? ())", true);
+            check("(null? ())", true);
+            check("(null? () ())", true);
+            check("(null? () () () ())", true);
+            check("(null? 1)", false);
+            check("(null? 1.2)", false);
+            check('(null? "asd")', false);
+            check('(null? (list 1))', false);
+            check("(null? () () () () 1)", false);
+        });
+
+        Q.test("pair? works", function () {
+            function check(expr, result) {
+                Q.equal(Squim.run(expr).value, result);
+            }
+
+            check("(pair?)", true);
+            check("(pair? ())", false);
+            check("(pair? () ())", false);
+            check("(pair? (list 1))", true);
+            check("(pair? (list 1) (list 1))", true);
+            check("(pair? (list 1 2))", true);
+            check("(pair? (list 1) (list 1))", true);
+            check("(pair? (list 1) (list 1) (list 1) (list 1))", true);
+            check("(pair? 1)", false);
+            check("(pair? 1.2)", false);
+            check('(pair? "asd")', false);
+            check("(pair? (list 1) (list 1) (list 1) (list 1) 1)", false);
+        });
+
         Q.test("$if works", function () {
             function check(expr, result) {
                 Q.equal(Squim.run(expr).value, result);
