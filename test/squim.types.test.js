@@ -22,11 +22,23 @@
         Q.module("Squim.Symbol");
 
         Q.test("construct symbol", function () {
-            var symbol = new Symbol("asd");
+            function check(name) {
+                var symbol = new Symbol(name);
 
-            Q.ok(symbol instanceof Symbol, "symbol is instance of Symbol");
-            Q.equal(symbol.value, "asd");
-            Q.equal(symbol.toString(), "asd");
+                Q.ok(symbol instanceof Symbol, "symbol is instance of Symbol");
+                Q.equal(symbol.value, name);
+                Q.equal(symbol.toString(), name);
+            }
+
+            check("$lambda");
+            check("list->vector");
+            check("+");
+            check("<=?");
+            check("the-word-recursion-has-many-meanings");
+            check("q");
+            check("soup");
+            check("V17a");
+            check("a34kTMNs");
         });
 
         Q.test("evaling a symbol on an env returns the binding", function () {
