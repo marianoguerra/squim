@@ -30,7 +30,7 @@
         var exp;
 
         if (env === undefined) {
-            env = obj.types.Env.makeGround();
+            env = new obj.types.Env({}, [obj.types.Env.makeGround()]);
         }
 
         exp = obj.parse(code);

@@ -66,13 +66,34 @@
         return args.eval_(env);
     };
 
+    obj.allOfType = function (items, type) {
+        var ok = true;
+
+        while (items !== Types.nil) {
+            if (!(items.left instanceof type)) {
+                ok = false;
+                break;
+            }
+
+            items = items.right;
+        }
+
+        return (ok) ? Types.t : Types.f;
+    };
+
+    obj.k_boolean_p = function (args, env) {
+        return obj.allOfType(args._expand(env), Types.Bool);
+    };
+
     obj.makeGround = function () {
         return new Types.Env({
             "$lambda": obj.kLambda,
             "$define!": obj.kDefine,
             "apply": obj.kApply,
             "list": obj.kList,
-            "display": obj.kDisplay
+            "display": obj.kDisplay,
+
+            "boolean?": obj.k_boolean_p
         }, [], true);
     };
 
