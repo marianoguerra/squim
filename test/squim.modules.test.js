@@ -254,6 +254,13 @@
             env = check("(make-environment (get-current-environment))");
             Q.equal(env.parents.length, 1);
         });
+
+        Q.test("eval works", function () {
+            var otherEnv = new Types.Env({"foo": new Types.Int(4)}),
+                evalEnv = new Types.Env({"other-env": otherEnv}, [Types.Env.makeGround()]);
+
+            Q.equal(Squim.run('(eval foo other-env)', evalEnv).value, 4);
+        });
     };
 
     return obj;

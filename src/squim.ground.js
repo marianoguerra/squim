@@ -39,13 +39,17 @@
         return new Types.Fun(params, body, env);
     };
 
+    function expectEnvironment(item, args, env) {
+        if (!(item instanceof Types.Env)) {
+            // WARN: I'm not returning here, so if we stop throwing
+            // exceptions it will fail weirdly
+            Error.EnvironmentExpected(item, {args: args, env: env});
+        }
+    }
+
     obj.k_make_environment = function (args, env) {
         var parents = Types.util.pairToArray(args._expand(env), function (item, i) {
-            if (!(item instanceof Types.Env)) {
-                // WARN: I'm not returning here, so if we stop throwing
-                // exceptions it will fail weirdly
-                Error.EnvironmentExpected(item, {args: args, env: env});
-            }
+            expectEnvironment(item, args, env);
         });
 
         return new Types.Env({}, parents);
@@ -53,6 +57,16 @@
 
     obj.k_get_current_environment = function (args, env) {
         return env;
+    };
+
+    obj.k_eval = function (args, env) {
+        var parts = Types.util.gatherArguments(args, ["expression", "environment"], true),
+            evalEnv = parts.environment.eval_(env);
+
+        expectEnvironment(evalEnv, args, env);
+
+        // eval the env to get it, don't eval the expression in this env
+        return parts.expression.eval_(evalEnv);
     };
 
     obj.kDefine = function (args, env) {
@@ -200,7 +214,9 @@
             "$if": obj.k_if,
             "cons": obj.k_cons,
             "make-environment": obj.k_make_environment,
-            "get-current-environment": obj.k_get_current_environment
+            "get-current-environment": obj.k_get_current_environment,
+
+            "eval": obj.k_eval
         }, [], true);
     };
 
