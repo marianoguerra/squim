@@ -26,6 +26,15 @@
 
             Q.ok(symbol instanceof Symbol, "symbol is instance of Symbol");
             Q.equal(symbol.value, "asd");
+            Q.equal(symbol.toString(), "asd");
+        });
+
+        Q.test("evaling a symbol on an env returns the binding", function () {
+            var symbol = new Symbol("foo");
+
+            Q.equal(symbol.eval_(new Types.Env({foo: 4})), 4);
+            Q.equal(symbol.eval_(new Types.Env({}, [new Types.Env({foo: 4})])), 4);
+            Q.equal(symbol.eval_(new Types.Env({foo: 5}, [new Types.Env({foo: 4})])), 5);
         });
     };
 
