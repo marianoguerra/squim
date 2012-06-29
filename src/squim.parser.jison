@@ -11,6 +11,7 @@
 "#t"                   return 'TRUE'
 "#f"                   return 'FALSE'
 "#inert"               return 'INERT'
+"#ignore"              return 'IGNORE'
 "\"".*?"\""            return 'STRING'
 [A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+     return 'SYMBOL'
 "("                    return '('
@@ -54,6 +55,8 @@ e
         {$$ = Types.f;}
     | INERT
         {$$ = Types.inert;}
+    | IGNORE
+        {$$ = Types.ignore;}
     ;
 
 

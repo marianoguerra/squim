@@ -83,6 +83,23 @@
             check("(inert? #inert #inert #inert #inert 1)", false);
         });
 
+        Q.test("ignore? works", function () {
+            function check(expr, result) {
+                Q.equal(Squim.run(expr).value, result);
+            }
+
+            check("(ignore? #ignore)", true);
+            check("(ignore? #ignore)", true);
+            check("(ignore? #ignore #ignore)", true);
+            check("(ignore? #ignore #ignore #ignore #ignore)", true);
+            check("(ignore? 1)", false);
+            check("(ignore? 1.2)", false);
+            check('(ignore? "asd")', false);
+            check('(ignore? ())', false);
+            check('(ignore? (list 1))', false);
+            check("(ignore? #ignore #ignore #ignore #ignore 1)", false);
+        });
+
         Q.test("null? works", function () {
             function check(expr, result) {
                 Q.equal(Squim.run(expr).value, result);

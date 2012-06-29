@@ -180,6 +180,32 @@
         return (obj instanceof Inert);
     };
 
+    function Ignore() { }
+
+    Ignore.prototype.toJs = function () {
+        return "#ignore";
+    };
+
+    Ignore.prototype.toString = Ignore.prototype.toJs;
+
+    Ignore.ignore = new Ignore();
+
+    Ignore.prototype.eval_ = function (env) {
+        return this;
+    };
+
+    Ignore.prototype.eq_p = function (obj) {
+        if (obj instanceof Ignore) {
+            return this === obj;
+        } else {
+            return false;
+        }
+    };
+
+    Ignore.prototype.equal_p = function (obj) {
+        return (obj instanceof Ignore);
+    };
+
     function Pair(left, right) {
         this.left = left;
         this.right = right;
@@ -408,6 +434,7 @@
     obj.Bool = Bool;
     obj.Float = Float;
     obj.Inert = Inert;
+    obj.Ignore = Ignore;
     obj.Pair = Pair;
     obj.Nil = Pair.Nil;
     obj.Symbol = Symbol;
@@ -417,6 +444,7 @@
 
     obj.nil = Pair.nil;
     obj.inert = Inert.inert;
+    obj.ignore = Ignore.ignore;
     obj.t = new Bool(true);
     obj.f = new Bool(false);
 

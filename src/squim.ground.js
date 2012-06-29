@@ -93,6 +93,10 @@
         return obj.allOfType(args._expand(env), Types.Inert);
     };
 
+    obj.k_ignore_p = function (args, env) {
+        return obj.allOfType(args._expand(env), Types.Ignore);
+    };
+
     obj.k_null_p = function (args, env) {
         return obj.allOfType(args._expand(env), Types.Pair.Nil);
     };
@@ -165,6 +169,7 @@
             "boolean?": obj.k_boolean_p,
             "symbol?": obj.k_symbol_p,
             "inert?": obj.k_inert_p,
+            "ignore?": obj.k_ignore_p,
             "null?": obj.k_null_p,
             "pair?": obj.k_pair_p,
 

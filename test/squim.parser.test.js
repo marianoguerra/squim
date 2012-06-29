@@ -124,6 +124,8 @@
             check("1");
             check("#t");
             check("#f");
+            check("#inert");
+            check("#ignore");
             check("1.2");
             check("()");
             check('"hi"');
