@@ -65,6 +65,30 @@
             check('(boolean? (list 1))', false);
             check("(boolean? #f #t #t #f 1)", false);
         });
+
+        Q.test("eq? works", function () {
+            var
+                val = new Types.Pair(new Types.Int(2), Types.nil),
+                env = new Types.Env({"foo": val, "bar": val}, [Types.Env.makeGround()]);
+
+            function check(expr, result) {
+                Q.equal(Squim.run(expr, env).value, result);
+            }
+
+            check("(eq?)", true);
+            check("(eq? #t)", true);
+            check("(eq? #t #t)", true);
+            check("(eq? #t #t #t)", true);
+            check("(eq? #t #f)", false);
+            check("(eq? 1 1)", true);
+            check("(eq? 1 2)", false);
+            check('(eq? "asd" "asd")', true);
+            check('(eq? (list) (list))', true);
+            check('(eq? (list 1) (list 1))', false);
+            check('(eq? foo bar)', true);
+            check('(eq? foo (list 2))', false);
+            check('(eq? foo bar (list 2))', false);
+        });
     };
 
     return obj;

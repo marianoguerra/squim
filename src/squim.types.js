@@ -245,7 +245,7 @@
             proc = this.left.eval_(env),
             args = this.right;
 
-        if (!(args instanceof Pair)) {
+        if (!(args instanceof Pair) && !(args instanceof Pair.Nil)) {
             return Error.ListExpected(args, {env: env, proc: proc, expr: args});
         }
 

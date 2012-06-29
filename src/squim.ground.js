@@ -85,6 +85,39 @@
         return obj.allOfType(args._expand(env), Types.Bool);
     };
 
+    obj.k_eq_p = function (args, env) {
+        var ok = true, first, items = args._expand(env),
+            leftValue, firstValue;
+
+        while (items !== Types.nil) {
+            if (first === undefined) {
+                first = items.left;
+
+                if (first.value !== undefined) {
+                    firstValue = first.value;
+                } else {
+                    firstValue = first;
+                }
+                continue;
+            }
+
+            if (items.left.value !== undefined) {
+                leftValue = items.left.value;
+            } else {
+                leftValue = items.left;
+            }
+
+            if (leftValue !== firstValue) {
+                ok = false;
+                break;
+            }
+
+            items = items.right;
+        }
+
+        return (ok) ? Types.t : Types.f;
+    };
+
     obj.makeGround = function () {
         return new Types.Env({
             "$lambda": obj.kLambda,
@@ -93,7 +126,8 @@
             "list": obj.kList,
             "display": obj.kDisplay,
 
-            "boolean?": obj.k_boolean_p
+            "boolean?": obj.k_boolean_p,
+            "eq?": obj.k_eq_p
         }, [], true);
     };
 
