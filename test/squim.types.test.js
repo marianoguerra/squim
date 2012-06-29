@@ -66,6 +66,23 @@
             check("(boolean? #f #t #t #f 1)", false);
         });
 
+        Q.test("inert? works", function () {
+            function check(expr, result) {
+                Q.equal(Squim.run(expr).value, result);
+            }
+
+            check("(inert? #inert)", true);
+            check("(inert? #inert)", true);
+            check("(inert? #inert #inert)", true);
+            check("(inert? #inert #inert #inert #inert)", true);
+            check("(inert? 1)", false);
+            check("(inert? 1.2)", false);
+            check('(inert? "asd")', false);
+            check('(inert? ())', false);
+            check('(inert? (list 1))', false);
+            check("(inert? #inert #inert #inert #inert 1)", false);
+        });
+
         Q.test("symbol? works", function () {
             function check(expr, result) {
                 Q.equal(Squim.run(expr).value, result);

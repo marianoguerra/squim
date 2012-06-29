@@ -10,6 +10,7 @@
 [0-9]+\b               return 'INTEGER'
 "#t"                   return 'TRUE'
 "#f"                   return 'FALSE'
+"#inert"               return 'INERT'
 "\"".*?"\""            return 'STRING'
 [A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+     return 'SYMBOL'
 "("                    return '('
@@ -51,6 +52,8 @@ e
         {$$ = Types.t;}
     | FALSE
         {$$ = Types.f;}
+    | INERT
+        {$$ = Types.inert;}
     ;
 
 
