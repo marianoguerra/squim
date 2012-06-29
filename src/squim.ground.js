@@ -145,6 +145,15 @@
         }
     };
 
+    obj.k_cons = function (args, env) {
+        var
+            parts = Types.util.gatherArguments(args._expand(env), ["car", "cdr"], true),
+            car = parts.car,
+            cdr = parts.cdr;
+
+        return new Types.Pair(car, cdr);
+    };
+
     obj.makeGround = function () {
         return new Types.Env({
             "$lambda": obj.kLambda,
@@ -162,7 +171,8 @@
             "eq?": obj.k_eq_p,
             "equal?": obj.k_equal_p,
 
-            "$if": obj.k_if
+            "$if": obj.k_if,
+            "cons": obj.k_cons
         }, [], true);
     };
 

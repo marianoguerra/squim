@@ -213,6 +213,40 @@
             check('(equal? foo (list 2))', true);
             check('(equal? foo bar (list 2))', true);
         });
+
+        Q.test("cons works", function () {
+            var
+                foo = new Types.Int(2),
+                bar = Types.f,
+                env = new Types.Env({"foo": foo, "bar": bar}, [Types.Env.makeGround()]);
+
+            function check(expr, car, cons) {
+                var result = Squim.run(expr, env);
+
+                Q.ok(result instanceof Types.Pair);
+                Q.equal(result.left.value, car);
+                Q.equal(result.right.value, cons);
+            }
+
+            function expectError(expr, errorName) {
+                Q.raises(
+                    function () {
+                        Squim.run(expr);
+                    },
+                    function (error) {
+                        return error.name === errorName;
+                    }
+                );
+            }
+
+
+            check("(cons 1 2)", 1, 2);
+            check("(cons foo bar)", 2, false);
+
+            expectError('(cons)', Squim.errors.type.BadMatch);
+            expectError('(cons 1)', Squim.errors.type.BadMatch);
+            expectError('(cons 1 2 3)', Squim.errors.type.BadMatch);
+        });
     };
 
     return obj;

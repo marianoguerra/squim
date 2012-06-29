@@ -346,7 +346,7 @@
         }
     };
 
-    obj.util.gatherArguments = function (items, names) {
+    obj.util.gatherArguments = function (items, names, exactNumber) {
         var param, arg, args, iargs, params, iparams, bindings = {};
 
         if (!(items instanceof Pair) && !(items instanceof Pair.Nil)) {
@@ -384,6 +384,12 @@
 
             iparams = iparams.right;
             iargs = iargs.right;
+        }
+
+        if (exactNumber && iargs !== Pair.nil) {
+            return Error.BadMatch(
+                "more parameters provided than required",
+                {params: params, args: args});
         }
 
         return bindings;
