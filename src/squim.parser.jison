@@ -8,6 +8,8 @@
 \s+                    /* skip whitespace */
 [0-9]+"."[0-9]+\b      return 'DECIMAL'
 [0-9]+\b               return 'INTEGER'
+"#t"                   return 'TRUE'
+"#f"                   return 'FALSE'
 "\"".*?"\""            return 'STRING'
 [A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+     return 'SYMBOL'
 "("                    return '('
@@ -45,6 +47,10 @@ e
     	{$$ = new Types.Str(yytext.slice(1, yytext.length - 1));}
     | SYMBOL
     	{$$ = new Types.Symbol(yytext);}
+    | TRUE
+        {$$ = Types.t;}
+    | FALSE
+        {$$ = Types.f;}
     ;
 
 

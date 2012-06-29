@@ -74,6 +74,17 @@
             check("(12.1)", 12.1);
         });
 
+        Q.test("parses boolean", function () {
+            function check(expr, expectedValue) {
+                var exp = Parser.parse(expr);
+
+                Q.equal(exp.left.value, expectedValue);
+            }
+
+            check("(#t)", true);
+            check("(#f)", false);
+        });
+
         Q.test("parses string", function () {
             function check(expr, expectedValue) {
                 var exp = Parser.parse(expr);
@@ -111,6 +122,8 @@
             }
 
             check("1");
+            check("#t");
+            check("#f");
             check("1.2");
             check("()");
             check('"hi"');
@@ -132,6 +145,8 @@
             }
 
             check("1 ; a number");
+            check("#t ; true");
+            check("#f ; false");
             check("1.2 ; a float");
             check("();empty list");
             check('"hi";;;;;;;;;;;;');

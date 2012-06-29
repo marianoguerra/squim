@@ -72,6 +72,22 @@
         return JSON.stringify(this.value);
     };
 
+    function Bool(value) {
+        this.value = value;
+    }
+
+    Bool.prototype.toJs = function () {
+        return this.value;
+    };
+
+    Bool.prototype.eval_ = function (env) {
+        return this;
+    };
+
+    Bool.prototype.toString = function () {
+        return (this.value) ? "#t" : "#f";
+    };
+
     function Float(value) {
         this.value = value;
     }
@@ -297,6 +313,7 @@
 
     obj.Str = Str;
     obj.Int = Int;
+    obj.Bool = Bool;
     obj.Float = Float;
     obj.Inert = Inert;
     obj.Pair = Pair;
@@ -308,6 +325,8 @@
 
     obj.nil = Pair.nil;
     obj.inert = Inert.inert;
+    obj.t = new Bool(true);
+    obj.f = new Bool(false);
 
     return obj;
 }));
