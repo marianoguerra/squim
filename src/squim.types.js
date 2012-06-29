@@ -175,6 +175,10 @@
         return ['$lambda', this.params.toJs(), this.body.toJs()];
     };
 
+    Fun.prototype.toString = function () {
+        return "($lambda " + this.params.toString() + " " + this.body.toString() + ")";
+    };
+
     Fun.prototype.apply = function (thisArg, funargs) {
         var bindings,
             newEnv,
