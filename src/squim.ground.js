@@ -63,9 +63,7 @@
     };
 
     obj.kApply = function (args, env) {
-        var vars = Types.util.gatherArguments(args._expand(env), ["fun", "args"]);
-
-        return Types.apply(vars.fun, vars.args, env);
+        return args.eval_(env);
     };
 
     obj.makeGround = function () {

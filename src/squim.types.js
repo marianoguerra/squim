@@ -16,7 +16,7 @@
     }
 }(this, function (JSON, Env, Error, Util) {
     "use strict";
-    var obj = {}, apply;
+    var obj = {};
 
     obj.util = {};
 
@@ -131,10 +131,7 @@
         return parts.join("");
     };
 
-    Pair.prototype.eval_ = function (env) {
-        var proc = this.left.eval_(env);
-        return apply(proc, this.right, env);
-    };
+    // Note: Pair.eval_ is defined at the bottom to have access to all definitions
 
     Pair.prototype._expand = function (env) {
         return new Pair(this.left.eval_(env), this.right._expand(env));
@@ -194,9 +191,52 @@
         return this.body.eval_(newEnv);
     };
 
-    apply = function (proc, args, env) {
+    function Operative(params, body, env) {
+        this.params = params;
+        this.env = env;
+        this.body = body;
+    }
+
+    Operative.prototype.eval_ = function (env) {
+        return this;
+    };
+
+    Operative.prototype.toJs = function (env) {
+        return ['$vau', this.params.toJs(), this.body.toJs()];
+    };
+
+    Operative.prototype.toString = function () {
+        return "($vau" + this.params.toString() + " " + this.body.toString() + ")";
+    };
+
+    Operative.prototype.apply = function (thisArg, funargs) {
+        var bindings,
+            newEnv,
+            args = funargs[0],
+            env = funargs[1];
+
+        bindings = obj.util.gatherArguments(args, this.params);
+
+        // don't know if parent envs are ok
+        // where does this.env go?
+        newEnv = new Env(bindings, [env]);
+
+        return this.body.eval_(newEnv);
+    };
+
+    Pair.prototype.eval_ = function (env) {
+        var
+            proc = this.left.eval_(env),
+            args = this.right;
+
+        if (!(args instanceof Pair)) {
+            return Error.ListExpected(args, {env: env, proc: proc, expr: args});
+        }
+
         if (proc instanceof Fun) {
             return proc.apply(null, [args._expand(env), env]);
+        } else if (proc instanceof Operative) {
+            return proc.apply(null, [args, env]);
         } else if (typeof proc.apply === 'function') {
             return proc.apply(null, [args, env]);
         } else {
@@ -264,12 +304,10 @@
     obj.Symbol = Symbol;
     obj.Env = Env;
     obj.Fun = Fun;
+    obj.Operative = Operative;
 
     obj.nil = Pair.nil;
     obj.inert = Inert.inert;
-
-    // TODO: find another place for this
-    obj.apply = apply;
 
     return obj;
 }));

@@ -34,6 +34,7 @@
     obj.type = {
         UnboundSymbol: "UnboundSymbol",
         CombinerExpected: "CombinerExpected",
+        ListExpected: "ListExpected",
         BadMatch: "BadMatch",
         MutationError: "MutationError"
     };
@@ -44,6 +45,10 @@
 
     obj.CombinerExpected = function (got, ctx) {
         throw makeException(obj.type.CombinerExpected, {got: got, ctx: ctx});
+    };
+
+    obj.ListExpected = function (got, ctx) {
+        throw makeException(obj.type.ListExpected, {got: got, ctx: ctx});
     };
 
     obj.BadMatch = function (msg, ctx) {
