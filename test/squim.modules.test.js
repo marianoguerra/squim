@@ -261,6 +261,22 @@
 
             Q.equal(Squim.run('(eval foo other-env)', evalEnv).value, 4);
         });
+
+        Q.test("applicative? works", function () {
+            Q.equal(Squim.run('(applicative? list)').value, true);
+            Q.equal(Squim.run('(applicative? ($lambda () 1))').value, true);
+
+            Q.equal(Squim.run('(applicative? 1)').value, false);
+            Q.equal(Squim.run('(applicative? ($vau () #ignore 1))').value, false);
+        });
+
+        Q.test("operative? works", function () {
+            Q.equal(Squim.run('(operative? list)').value, false);
+            Q.equal(Squim.run('(operative? ($lambda () 1))').value, false);
+
+            Q.equal(Squim.run('(operative? 1)').value, false);
+            Q.equal(Squim.run('(operative? ($vau () #ignore 1))').value, true);
+        });
     };
 
     return obj;

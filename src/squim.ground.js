@@ -39,6 +39,12 @@
         return new Types.Fun(params, body, env);
     };
 
+    obj.k_vau = function (args, env) {
+        var parts = Types.util.gatherArguments(args, ["formals", "eformal", "expr"], true);
+
+        return new Types.Operative(parts.formals, parts.eformal, parts.expr, env);
+    };
+
     function expectEnvironment(item, args, env) {
         if (!(item instanceof Types.Env)) {
             // WARN: I'm not returning here, so if we stop throwing
@@ -97,10 +103,25 @@
     };
 
     obj.allOfType = function (items, type) {
-        var ok = true;
+        var ok = true, i, oneType;
 
         while (items !== Types.nil) {
-            if (!(items.left instanceof type)) {
+
+            if (Util.isArray(type)) {
+                oneType = false;
+
+                for (i = 0; i < type.length; i += 1) {
+                    if (items.left instanceof type[i]) {
+                        oneType = true;
+                        break;
+                    }
+                }
+
+                if (!oneType) {
+                    ok = false;
+                    break;
+                }
+            } else if (!(items.left instanceof type)) {
                 ok = false;
                 break;
             }
@@ -137,6 +158,14 @@
 
     obj.k_environment_p = function (args, env) {
         return obj.allOfType(args._expand(env), Types.Env);
+    };
+
+    obj.k_operative_p = function (args, env) {
+        return obj.allOfType(args._expand(env), Types.Operative);
+    };
+
+    obj.k_applicative_p = function (args, env) {
+        return obj.allOfType(args._expand(env), [Types.Fun, Function]);
     };
 
     obj.compareAllToFirst = function (args, env, methodName) {
@@ -200,6 +229,8 @@
             "list": obj.kList,
             "display": obj.kDisplay,
 
+            "operative?": obj.k_operative_p,
+            "applicative?": obj.k_applicative_p,
             "environment?": obj.k_environment_p,
             "boolean?": obj.k_boolean_p,
             "symbol?": obj.k_symbol_p,
@@ -216,7 +247,8 @@
             "make-environment": obj.k_make_environment,
             "get-current-environment": obj.k_get_current_environment,
 
-            "eval": obj.k_eval
+            "eval": obj.k_eval,
+            "$vau": obj.k_vau
         }, [], true);
     };
 

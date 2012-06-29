@@ -317,10 +317,11 @@
 
     // TODO: eq_p and equal_p for Fun
 
-    function Operative(params, body, env) {
-        this.params = params;
-        this.env = env;
-        this.body = body;
+    function Operative(formals, eformal, expr, staticEnv) {
+        this.formals = formals;
+        this.eformal = eformal;
+        this.expr = expr;
+        this.staticEnv = staticEnv;
     }
 
     Operative.prototype.eval_ = function (env) {
@@ -328,26 +329,33 @@
     };
 
     Operative.prototype.toJs = function (env) {
-        return ['$vau', this.params.toJs(), this.body.toJs()];
+        return ['$vau', this.formals.toJs(), this.eformal.toJs(), this.expr.toJs()];
     };
 
     Operative.prototype.toString = function () {
-        return "($vau" + this.params.toString() + " " + this.body.toString() + ")";
+        return "($vau" + this.formals.toString() + " " + this.eformal.toString() + " " + this.expr.toString() + ")";
     };
 
     Operative.prototype.apply = function (thisArg, funargs) {
-        var bindings,
-            newEnv,
+        var
+            key,
+            bindings,
+            localEnv,
             args = funargs[0],
-            env = funargs[1];
+            dynamicEnv = funargs[1];
 
-        bindings = obj.util.gatherArguments(args, this.params);
+        localEnv = new Env({}, [this.staticEnv]);
+        bindings = obj.util.gatherArguments(args._expand(localEnv), this.params);
 
-        // don't know if parent envs are ok
-        // where does this.env go?
-        newEnv = new Env(bindings, [env]);
+        for (key in bindings) {
+            localEnv.define(key, bindings[key]);
+        }
 
-        return this.body.eval_(newEnv);
+        if (this.eformal instanceof Symbol) {
+            localEnv.define(this.eformal, dynamicEnv);
+        }
+
+        return this.body.eval_(localEnv);
     };
 
     // TODO: eq_p and equal_p for Operative
