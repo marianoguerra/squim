@@ -66,6 +66,24 @@
             check("(boolean? #f #t #t #f 1)", false);
         });
 
+        Q.test("symbol? works", function () {
+            function check(expr, result) {
+                Q.equal(Squim.run(expr).value, result);
+            }
+
+            // TODO: test this
+            //check("(symbol? foo)", true);
+            //check("(symbol? bar)", true);
+            //check("(symbol? bar foo)", true);
+            //check("(symbol? bar foo foo bar)", true);
+            check("(symbol? 1)", false);
+            check("(symbol? 1.2)", false);
+            check('(symbol? "asd")', false);
+            check('(symbol? ())', false);
+            check('(symbol? (list 1))', false);
+            //check("(symbol? bar foo foo bar 1)", false);
+        });
+
         Q.test("eq? works", function () {
             var
                 val = new Types.Pair(new Types.Int(2), Types.nil),
