@@ -18,6 +18,10 @@
     "use strict";
     var obj = {};
 
+    function isArray(obj) {
+        return Object.prototype.toString.call(obj) === '[object Array]';
+    }
+
     obj.test = function () {
         Q.module("Squim.Env");
 
@@ -27,6 +31,8 @@
             Q.ok(env instanceof Env, "env is instance of Env");
             Q.ok(typeof env.define === "function", "define is a function");
             Q.ok(typeof env.get === "function", "getis a function");
+            Q.ok(isArray(env.parents), "parents is an array");
+            Q.ok(typeof env.bindings === "object", "bindings is an object");
         });
 
         Q.test("parent and bindings is set in constructor", function () {
