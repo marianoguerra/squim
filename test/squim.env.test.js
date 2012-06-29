@@ -124,6 +124,25 @@
 
             Q.equal(env.get("foo"), 15);
         });
+
+        Q.test("eq? === equal? for environment", function () {
+            var env1 = new Env(),
+                env2 = new Env(),
+                ground = Env.makeGround(),
+                otherGround = Env.makeGround();
+
+            Q.equal(env1.eq_p(env1), true);
+            Q.equal(env1.equal_p(env1), true);
+
+            Q.equal(env1.eq_p(env2), false);
+            Q.equal(env1.equal_p(env2), false);
+
+            Q.equal(ground.eq_p(env2), false);
+            Q.equal(ground.equal_p(env2), false);
+
+            Q.equal(ground.eq_p(otherGround), false);
+            Q.equal(ground.equal_p(otherGround), false);
+        });
     };
 
     return obj;

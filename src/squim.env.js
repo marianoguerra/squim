@@ -59,6 +59,12 @@
         }
     };
 
+    Env.prototype.eq_p = function (obj) {
+        return this === obj;
+    };
+
+    Env.prototype.equal_p = Env.prototype.eq_p;
+
     // @internal
     Env.prototype.toJs = function () {
         var i, parents = [];
