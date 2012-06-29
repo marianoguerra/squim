@@ -8,7 +8,7 @@
 [0-9]+"."[0-9]+\b      return 'DECIMAL'
 [0-9]+\b               return 'INTEGER'
 "\"".*?"\""            return 'STRING'
-[A-Za-z\-_0-9\?!:\.\+\*/%\$<>]+     return 'SYMBOL'
+[A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+     return 'SYMBOL'
 "("                    return '('
 ")"                    return ')'
 <<EOF>>                return 'EOF'

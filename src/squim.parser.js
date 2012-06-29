@@ -372,7 +372,7 @@ case 8:return 'INVALID'
 break;
 }
 };
-lexer.rules = [/^\s+/,/^[0-9]+\.[0-9]+\b/,/^[0-9]+\b/,/^".*?"/,/^[A-Za-z\-_0-9\?!:\.\+\*/%\$<>]+/,/^\(/,/^\)/,/^$/,/^./];
+lexer.rules = [/^\s+/,/^[0-9]+\.[0-9]+\b/,/^[0-9]+\b/,/^".*?"/,/^[A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+/,/^\(/,/^\)/,/^$/,/^./];
 lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8],"inclusive":true}};
 return lexer;})()
 parser.lexer = lexer;
