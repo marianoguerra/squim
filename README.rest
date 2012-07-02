@@ -33,7 +33,6 @@ TODO
 ----
 
 * case insensitive identifiers
-* support (1 . ())
 * check if copying the formals parameter tree and expr when applying a $vau
 * make native operatives return true on operative? call
 * implement full arg tree binding algorithm as specified in $define!

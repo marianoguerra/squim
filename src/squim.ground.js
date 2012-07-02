@@ -285,7 +285,7 @@
 
 
         ground.list = Parser.parse('($define! list (wrap ($vau x #ignore x)))').eval_(ground);
-
+        ground["list*"] = Parser.parse("($define! list* ($lambda (head . tail) ($if (null? tail) head (cons head (apply list* tail)))))").eval_(ground);
 
         // set the ground as inmutable now that we added all bindings
         ground.inmutable = true;

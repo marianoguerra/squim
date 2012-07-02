@@ -303,8 +303,12 @@
             Q.equal(Squim.run('(list foo)', env).left.value, 4);
 
             result = Squim.run('((unwrap list) foo)', env);
-            console.log(result);
             Q.equal(result.left.value, "foo");
+        });
+
+        Q.test("list* works", function () {
+            var result = Squim.run('(list* 1 2 3 4)');
+            Q.deepEqual(result.toJs(), [1, 2, 3, 4]);
         });
 
         Q.test("$lambda works", function () {
