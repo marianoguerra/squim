@@ -33,7 +33,7 @@
         if (args.right === Types.Pair.nil) {
             body = Types.Inert.inert;
         } else {
-            body = args.right;
+            body = args.right.left;
         }
 
         return new Types.Applicative(new Types.Operative(params, Types.ignore, body, env));

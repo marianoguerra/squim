@@ -306,6 +306,18 @@
             console.log(result);
             Q.equal(result.left.value, "foo");
         });
+
+        Q.test("$lambda works", function () {
+            var result;
+
+            result = Squim.run('($lambda x x)');
+
+            Q.equal(result.operative.formals.value, 'x');
+            Q.equal(result.operative.expr.value, 'x');
+
+            result = Squim.run('(apply ($lambda x x) 2)');
+            Q.equal(result.value, 2);
+        });
     };
 
     return obj;
