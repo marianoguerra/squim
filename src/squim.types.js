@@ -322,6 +322,12 @@
         this.eformal = eformal;
         this.expr = expr;
         this.staticEnv = staticEnv;
+
+        if (this.eformal !== Ignore.ignore && !(eformal instanceof Symbol)) {
+            return Error.SymbolExpected(this.eformal, {
+                msg: "Symbol or #ignore expected as environment parameter"
+            });
+        }
     }
 
     Operative.prototype.eval_ = function (env) {

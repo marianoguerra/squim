@@ -270,6 +270,15 @@
             Q.equal(Squim.run('(applicative? ($vau () #ignore 1))').value, false);
         });
 
+        Q.test("passing something other than #ignore or a symbol as 2nd param fails",
+                function () {
+                    Q.raises(function () {
+                        Squim.run('(applicative? ($vau () 2 1))');
+                    }, function (error) {
+                        return error.name === Squim.errors.type.SymbolExpected;
+                    });
+                });
+
         Q.test("operative? works", function () {
             Q.equal(Squim.run('(operative? list)').value, false);
             Q.equal(Squim.run('(operative? ($lambda () 1))').value, false);
