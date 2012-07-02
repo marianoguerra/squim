@@ -317,7 +317,8 @@
             result = Squim.run('($lambda x x)');
 
             Q.equal(result.operative.formals.value, 'x');
-            Q.equal(result.operative.expr.value, 'x');
+            Q.equal(result.operative.expr.left.value, '$sequence');
+            Q.equal(result.operative.expr.right.left.value, 'x');
 
             result = Squim.run('(($lambda (x) x) 2)');
             Q.equal(result.value, 2);
@@ -330,6 +331,14 @@
 
             result = Squim.run('(($lambda (first second . tail) tail) 1 2 3 4)');
             Q.deepEqual(result.toJs(), [3, 4]);
+
+            result = Squim.run('(($lambda (a) ($define! one 1) ($define! two 2) (list one two a)) 5)');
+            Q.deepEqual(result.toJs(), [1, 2, 5]);
+        });
+
+        Q.test("$vau works", function () {
+            var result = Squim.run('(($vau (a) #ignore ($define! one 1) ($define! two 2) (list one two a)) foo)');
+            Q.deepEqual(result.toJs(), [1, 2, 'foo']);
         });
     };
 

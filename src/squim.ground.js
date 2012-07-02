@@ -17,12 +17,18 @@
     }
 }(this, function (JSON, Types, Error, Util, Parser) {
     "use strict";
-    var obj = {};
+    var obj = {},
+        Pair = Types.Pair,
+        nil = Pair.nil,
+        Nil = Pair.Nil,
+        Symbol = Types.Symbol,
+        // (formals eformals . expr)
+        vauNames = new Pair(new Symbol("formals"), new Pair(new Symbol("eformal"), new Symbol("expr")));
 
     obj.kLambda = function (args, env) {
         var params, body;
 
-        if (!(args instanceof Types.Pair)) {
+        if (!(args instanceof Pair)) {
             return Error.BadMatch(
                 "expected $lambda <params> <body>",
                 {args: args});
@@ -30,19 +36,23 @@
 
         params = args.left;
 
-        if (args.right === Types.Pair.nil) {
+        if (args.right === nil) {
             body = Types.Inert.inert;
         } else {
-            body = args.right.left;
+            // XXX doing it this way may make it work weird if $sequence is
+            // redefined, check if this is the expected behaviour
+            body = new Pair(new Symbol('$sequence'), args.right);
         }
 
         return new Types.Applicative(new Types.Operative(params, Types.ignore, body, env));
     };
 
     obj.k_vau = function (args, env) {
-        var parts = Types.util.gatherArguments(args, ["formals", "eformal", "expr"], true);
+        var
+            parts = Types.util.gatherArguments(args, vauNames),
+            expr = new Pair(new Symbol('$sequence'), parts.expr);
 
-        return new Types.Operative(parts.formals, parts.eformal, parts.expr, env);
+        return new Types.Operative(parts.formals, parts.eformal, expr, env);
     };
 
     obj.k_wrap = function (args, env) {
@@ -165,7 +175,7 @@
     };
 
     obj.k_symbol_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Symbol);
+        return obj.allOfType(args._expand(env), Symbol);
     };
 
     obj.k_inert_p = function (args, env) {
@@ -177,11 +187,11 @@
     };
 
     obj.k_null_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Pair.Nil);
+        return obj.allOfType(args._expand(env), Nil);
     };
 
     obj.k_pair_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Pair);
+        return obj.allOfType(args._expand(env), Pair);
     };
 
     obj.k_environment_p = function (args, env) {
@@ -246,7 +256,7 @@
             car = parts.car,
             cdr = parts.cdr;
 
-        return new Types.Pair(car, cdr);
+        return new Pair(car, cdr);
     };
 
     obj.makeGround = function () {
