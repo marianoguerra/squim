@@ -282,40 +282,32 @@
 
     Pair.nil = new Pair.Nil();
 
-    function Fun(params, body, env) {
-        this.params = params;
-        this.env = env;
-        this.body = body;
+    function Applicative(operative) {
+        this.operative = operative;
     }
 
-    Fun.prototype.eval_ = function (env) {
+    Applicative.prototype.eval_ = function (env) {
         return this;
     };
 
-    Fun.prototype.toJs = function (env) {
-        return ['$lambda', this.params.toJs(), this.body.toJs()];
+    Applicative.prototype.toJs = function (env) {
+        return ['$lambda', this.operative.formals.toJs(), this.operative.expr.toJs()];
     };
 
-    Fun.prototype.toString = function () {
-        return "($lambda " + this.params.toString() + " " + this.body.toString() + ")";
+    Applicative.prototype.toString = function () {
+        return "($lambda " + this.operative.formals.toString() + " " + this.operative.expr.toString() + ")";
     };
 
-    Fun.prototype.apply = function (thisArg, funargs) {
-        var bindings,
-            newEnv,
+    Applicative.prototype.apply = function (thisArg, funargs) {
+        var
             args = funargs[0],
-            // TODO: where does this env goes? (dynamic env?)
-            env = funargs[1];
+            dynamicEnv = funargs[1],
+            evaledArgs = args._expand(dynamicEnv);
 
-        bindings = obj.util.gatherArguments(args, this.params);
-
-        // don't know if parent envs are ok
-        newEnv = new Env(bindings, [this.env, env]);
-
-        return this.body.eval_(newEnv);
+        return this.operative.apply(thisArg, [evaledArgs, dynamicEnv]);
     };
 
-    // TODO: eq_p and equal_p for Fun
+    // TODO: eq_p and equal_p for Applicative
 
     function Operative(formals, eformal, expr, staticEnv) {
         this.formals = formals;
@@ -351,7 +343,7 @@
             dynamicEnv = funargs[1];
 
         localEnv = new Env({}, [this.staticEnv]);
-        bindings = obj.util.gatherArguments(args._expand(localEnv), this.params);
+        bindings = obj.util.gatherArguments(args._expand(localEnv), this.formals);
 
         for (key in bindings) {
             localEnv.define(key, bindings[key]);
@@ -361,7 +353,7 @@
             localEnv.define(this.eformal, dynamicEnv);
         }
 
-        return this.body.eval_(localEnv);
+        return this.expr.eval_(localEnv);
     };
 
     // TODO: eq_p and equal_p for Operative
@@ -375,7 +367,7 @@
             return Error.ListExpected(args, {env: env, proc: proc, expr: args});
         }
 
-        if (proc instanceof Fun) {
+        if (proc instanceof Applicative) {
             return proc.apply(null, [args._expand(env), env]);
         } else if (proc instanceof Operative) {
             return proc.apply(null, [args, env]);
@@ -436,7 +428,7 @@
     };
 
     obj.util.arrayToPair = function (items) {
-        if (items.length  === 0) {
+        if (items.length === 0) {
             return Pair.nil;
         }
 
@@ -470,7 +462,7 @@
     obj.Nil = Pair.Nil;
     obj.Symbol = Symbol;
     obj.Env = Env;
-    obj.Fun = Fun;
+    obj.Applicative = Applicative;
     obj.Operative = Operative;
 
     obj.nil = Pair.nil;

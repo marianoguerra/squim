@@ -36,7 +36,7 @@
             body = args.right;
         }
 
-        return new Types.Fun(params, body, env);
+        return new Types.Applicative(new Types.Operative(params, Types.ignore, body, env));
     };
 
     obj.k_vau = function (args, env) {
@@ -165,7 +165,7 @@
     };
 
     obj.k_applicative_p = function (args, env) {
-        return obj.allOfType(args._expand(env), [Types.Fun, Function]);
+        return obj.allOfType(args._expand(env), [Types.Applicative, Function]);
     };
 
     obj.compareAllToFirst = function (args, env, methodName) {
