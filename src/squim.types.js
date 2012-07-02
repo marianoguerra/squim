@@ -228,7 +228,13 @@
                 parts.push(" ");
             }
 
-            item = item.right;
+            if (item.right instanceof Pair || item.right instanceof Pair.Nil) {
+                item = item.right;
+            } else {
+                parts.push(". ");
+                parts.push(item.right.toString());
+                item = Pair.nil;
+            }
         }
 
         parts.push(")");

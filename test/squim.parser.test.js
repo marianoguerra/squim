@@ -25,7 +25,8 @@
             var
                 oneItem = Parser.parse('(1)'),
                 twoItems = Parser.parse('(1 2)'),
-                threeItems = Parser.parse('(1 2 3)');
+                threeItems = Parser.parse('(1 2 3)'),
+                dotted = Parser.parse('(1 . 2)');
 
             Q.equal(Parser.parse('()'), Pair.nil);
             Q.equal(oneItem.left.value, 1);
@@ -39,6 +40,9 @@
             Q.equal(threeItems.right.left.value, 2);
             Q.equal(threeItems.right.right.left.value, 3);
             Q.equal(threeItems.right.right.right, Pair.nil);
+
+            Q.equal(dotted.left.value, 1);
+            Q.equal(dotted.right.value, 2);
         });
 
         Q.test("parses symbols", function () {
@@ -117,8 +121,14 @@
         });
 
         Q.test("representation is the same as the parsed input", function () {
-            function check(expr) {
-                Q.equal(expr, Parser.parse(expr).toString(), expr);
+            function check(expr, explicitRepr) {
+                var repr = Parser.parse(expr).toString();
+
+                if (explicitRepr === undefined) {
+                    explicitRepr = expr;
+                }
+
+                Q.equal(explicitRepr, repr, explicitRepr + ": " + repr);
             }
 
             check("1");
@@ -128,6 +138,9 @@
             check("#ignore");
             check("1.2");
             check("()");
+            check("(1 . 2)");
+            check("((1 . 2) . (3 . (4 5)))", "((1 . 2) 3 4 5)");
+            check("((1 . 2) . (3 . (4 . 5)))", "((1 . 2) 3 4 . 5)");
             check('"hi"');
             check('map');
             check('(+ 1 2)');

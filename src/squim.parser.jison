@@ -6,6 +6,7 @@
 
 ";".*$                 /* ignore */
 \s+                    /* skip whitespace */
+"."                    return 'DOT'
 [0-9]+"."[0-9]+\b      return 'DECIMAL'
 [0-9]+\b               return 'INTEGER'
 "#t"                   return 'TRUE'
@@ -39,6 +40,8 @@ listItems: e
 e
     : '(' ')'
         {$$ = Types.nil;}
+    | '(' e DOT e ')'
+        {$$ = new Types.Pair($2, $4);}
     | '(' listItems ')'
         {$$ = $2;}
     | INTEGER
