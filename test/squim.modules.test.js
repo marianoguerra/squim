@@ -312,13 +312,39 @@
         });
 
         Q.test("car works", function () {
+            function expectError(expr, errorName) {
+                Q.raises(
+                    function () {
+                        Squim.run(expr);
+                    },
+                    function (error) {
+                        return error.name === errorName;
+                    }
+                );
+            }
+
             Q.deepEqual(Squim.run('(car (list 1 2))').value, 1);
             Q.deepEqual(Squim.run('(car (cons 1 2))').value, 1);
+
+            expectError('(car 1)', Squim.errors.type.ListExpected);
         });
 
         Q.test("cdr works", function () {
+            function expectError(expr, errorName) {
+                Q.raises(
+                    function () {
+                        Squim.run(expr);
+                    },
+                    function (error) {
+                        return error.name === errorName;
+                    }
+                );
+            }
+
             Q.deepEqual(Squim.run('(cdr (list 1 2))').left.value, 2);
             Q.deepEqual(Squim.run('(cdr (cons 1 2))').value, 2);
+
+            expectError('(cdr 1)', Squim.errors.type.ListExpected);
         });
 
         Q.test("$lambda works", function () {
