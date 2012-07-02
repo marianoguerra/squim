@@ -40,8 +40,18 @@ listItems: e
 e
     : '(' ')'
         {$$ = Types.nil;}
-    | '(' e DOT e ')'
-        {$$ = new Types.Pair($2, $4);}
+    | '(' listItems DOT e ')'
+        {
+            var pair = $2;
+
+            while (pair.right !== Types.Pair.nil) {
+                pair = pair.right;
+            }
+
+            pair.right = $4;
+
+            $$ = $2;
+        }
     | '(' listItems ')'
         {$$ = $2;}
     | INTEGER
