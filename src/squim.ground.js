@@ -65,6 +65,18 @@
         return parts.applicative.operative;
     };
 
+    obj.k_sequence = function (args, env) {
+        var last = Types.inert;
+
+        while (args !== Types.nil) {
+            last = args.left.eval_(env);
+
+            args = args.right;
+        }
+
+        return last;
+    };
+
     function expectEnvironment(item, args, env) {
         if (!(item instanceof Types.Env)) {
             // WARN: I'm not returning here, so if we stop throwing
@@ -270,7 +282,8 @@
             "eval": obj.k_eval,
             "$vau": obj.k_vau,
             "wrap": obj.k_wrap,
-            "unwrap": obj.k_unwrap
+            "unwrap": obj.k_unwrap,
+            "$sequence": obj.k_sequence
         }, [], true);
     };
 

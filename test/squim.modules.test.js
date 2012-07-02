@@ -286,6 +286,12 @@
             Q.equal(Squim.run('(operative? 1)').value, false);
             Q.equal(Squim.run('(operative? ($vau () #ignore 1))').value, true);
         });
+
+        Q.test("$sequence works", function () {
+            Q.equal(Squim.run('($sequence)'), Types.inert);
+            Q.equal(Squim.run('($sequence (list 1) (list 2))').left.value, 2);
+            Q.equal(Squim.run('($sequence ($define! foo 42) (list foo))').left.value, 42);
+        });
     };
 
     return obj;
