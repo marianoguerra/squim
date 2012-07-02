@@ -320,6 +320,9 @@
 
             result = Squim.run('(($lambda x x) 2)');
             Q.equal(result.left.value, 2);
+
+            result = Squim.run('(($lambda (head . tail) tail) 1 2 3 4)');
+            Q.deepEqual(result.toJs(), [2, 3, 4]);
         });
     };
 

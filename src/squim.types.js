@@ -427,7 +427,16 @@
                     {params: params, args: args});
             }
 
-            iparams = iparams.right;
+            if (iparams.right instanceof Pair || iparams.right instanceof Pair.Nil) {
+                iparams = iparams.right;
+            } else if (iparams.right instanceof Symbol) {
+                bindings[iparams.right.value] = iargs.right;
+                iparams = Pair.nil;
+            } else if (typeof iparams.right === "string") {
+                bindings[iparams.right] = iargs.right;
+                iparams = Pair.nil;
+            }
+
             iargs = iargs.right;
         }
 
