@@ -311,6 +311,16 @@
             Q.deepEqual(result.toJs(), [1, 2, 3, 4]);
         });
 
+        Q.test("car works", function () {
+            Q.deepEqual(Squim.run('(car (list 1 2))').value, 1);
+            Q.deepEqual(Squim.run('(car (cons 1 2))').value, 1);
+        });
+
+        Q.test("cdr works", function () {
+            Q.deepEqual(Squim.run('(cdr (list 1 2))').left.value, 2);
+            Q.deepEqual(Squim.run('(cdr (cons 1 2))').value, 2);
+        });
+
         Q.test("$lambda works", function () {
             var result;
 

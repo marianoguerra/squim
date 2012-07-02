@@ -65,6 +65,26 @@
         return new Types.Applicative(parts.operative);
     };
 
+    obj.k_car = function (args, env) {
+        var parts = Types.util.gatherArguments(args._expand(env), ["pair"], true);
+
+        if (!(parts.pair instanceof Types.Pair)) {
+            return Error.ListExpected(parts.pair, {args: args, env: env});
+        }
+
+        return parts.pair.left;
+    };
+
+    obj.k_cdr = function (args, env) {
+        var parts = Types.util.gatherArguments(args._expand(env), ["pair"], true);
+
+        if (!(parts.pair instanceof Types.Pair)) {
+            return Error.ListExpected(parts.pair, {args: args, env: env});
+        }
+
+        return parts.pair.right;
+    };
+
     obj.k_unwrap = function (args, env) {
         var parts = Types.util.gatherArguments(args._expand(env), ["applicative"], true);
 
@@ -290,7 +310,9 @@
                 "$vau": obj.k_vau,
                 "wrap": obj.k_wrap,
                 "unwrap": obj.k_unwrap,
-                "$sequence": obj.k_sequence
+                "$sequence": obj.k_sequence,
+                "car": obj.k_car,
+                "cdr": obj.k_cdr
             }, [], false);
 
 
