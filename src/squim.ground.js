@@ -156,10 +156,6 @@
         return Types.Inert.inert;
     };
 
-    obj.k_apply = function (args, env) {
-        return args.eval_(env);
-    };
-
     obj.allOfType = function (items, type) {
         var ok = true, i, oneType;
 
@@ -285,7 +281,6 @@
             ground = new Types.Env({
                 "$lambda": obj.k_lambda,
                 "$define!": obj.k_define,
-                "apply": obj.k_apply,
                 "display": obj.k_display,
 
                 "operative?": obj.k_operative_p,
@@ -316,8 +311,10 @@
             }, [], false);
 
 
-        ground.list = Parser.parse('($define! list (wrap ($vau x #ignore x)))').eval_(ground);
-        ground["list*"] = Parser.parse("($define! list* ($lambda (head . tail) ($if (null? tail) head (cons head (apply list* tail)))))").eval_(ground);
+        Parser.parse('($define! list (wrap ($vau x #ignore x)))').eval_(ground);
+        Parser.parse("($define! apply ($lambda (appv arg . opt) (eval (cons (unwrap appv) arg) ($if (null? opt) (make-environment) (car opt)))))").eval_(ground);
+        Parser.parse("($define! list* ($lambda (head . tail) ($if (null? tail) head (cons head (apply list* tail)))))").eval_(ground);
+
 
         // set the ground as inmutable now that we added all bindings
         ground.inmutable = true;
