@@ -343,7 +343,9 @@
             dynamicEnv = funargs[1];
 
         localEnv = new Env({}, [this.staticEnv]);
-        bindings = obj.util.gatherArguments(args._expand(localEnv), this.formals);
+
+        //bindings = obj.util.gatherArguments(args._expand(localEnv), this.formals);
+        bindings = obj.util.gatherArguments(args, this.formals);
 
         for (key in bindings) {
             localEnv.define(key, bindings[key]);
@@ -368,7 +370,7 @@
         }
 
         if (proc instanceof Applicative) {
-            return proc.apply(null, [args._expand(env), env]);
+            return proc.apply(null, [args, env]);
         } else if (proc instanceof Operative) {
             return proc.apply(null, [args, env]);
         } else if (typeof proc.apply === 'function') {
@@ -381,14 +383,19 @@
     obj.util.gatherArguments = function (items, names, exactNumber) {
         var param, arg, args, iargs, params, iparams, bindings = {};
 
-        if (!(items instanceof Pair) && !(items instanceof Pair.Nil)) {
+        if (Util.isArray(items)) {
             iargs = args = obj.util.arrayToPair(items);
         } else {
             iargs = args = items;
         }
 
-        if (!(names instanceof Pair) && !(names instanceof Pair.Nil)) {
+        if (Util.isArray(names)) {
             iparams = params = obj.util.arrayToPair(names);
+        } else if (names instanceof Symbol) {
+            // NOTE if names is a symbol then bind all args to that symbol
+            // and return
+            bindings[names.value] = args;
+            return bindings;
         } else {
             iparams = params = names;
         }

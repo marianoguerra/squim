@@ -292,6 +292,20 @@
             Q.equal(Squim.run('($sequence (list 1) (list 2))').left.value, 2);
             Q.equal(Squim.run('($sequence ($define! foo 42) (list foo))').left.value, 42);
         });
+
+        Q.test("list works", function () {
+            var
+                result,
+                env = new Types.Env({"foo": new Types.Int(4)}, [Types.Env.makeGround()]);
+
+            Q.equal(Squim.run('(applicative? list)').value, true);
+            Q.equal(Squim.run('(operative? (unwrap list))').value, true);
+            Q.equal(Squim.run('(list foo)', env).left.value, 4);
+
+            result = Squim.run('((unwrap list) foo)', env);
+            console.log(result);
+            Q.equal(result.left.value, "foo");
+        });
     };
 
     return obj;

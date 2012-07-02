@@ -1,21 +1,21 @@
-/*global define SquimError SquimTypes SquimUtil*/
+/*global define SquimError SquimTypes SquimUtil SquimParser*/
 (function (root, factory) {
     "use strict";
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['json', 'squim.types', 'squim.error', 'squim.util'],
-               function (JSON, Types, Error, Util) {
+        define(['json', 'squim.types', 'squim.error', 'squim.util', 'squim.parser'],
+               function (JSON, Types, Error, Util, Parser) {
             // Also create a global in case some scripts
             // that are loaded still are looking for
             // a global even when an AMD loader is in use.
-            return (root.SquimGround = factory(JSON, Types, Error, Util));
+            return (root.SquimGround = factory(JSON, Types, Error, Util, Parser));
         });
     } else {
         // Browser globals
-        root.SquimGround = factory(JSON, SquimTypes, SquimError, SquimUtil);
+        root.SquimGround = factory(JSON, SquimTypes, SquimError, SquimUtil, SquimParser);
     }
-}(this, function (JSON, Types, Error, Util) {
+}(this, function (JSON, Types, Error, Util, Parser) {
     "use strict";
     var obj = {};
 
@@ -118,10 +118,6 @@
         env.define(name, evaledValue);
 
         return Types.Inert.inert;
-    };
-
-    obj.kList = function (args, env) {
-        return args._expand(env);
     };
 
     obj.kDisplay = function (args, env) {
@@ -254,37 +250,46 @@
     };
 
     obj.makeGround = function () {
-        return new Types.Env({
-            "$lambda": obj.kLambda,
-            "$define!": obj.kDefine,
-            "apply": obj.kApply,
-            "list": obj.kList,
-            "display": obj.kDisplay,
+        var
+            k_eval = obj.k_eval,
+            ground = new Types.Env({
+                "$lambda": obj.kLambda,
+                "$define!": obj.kDefine,
+                "apply": obj.kApply,
+                "display": obj.kDisplay,
 
-            "operative?": obj.k_operative_p,
-            "applicative?": obj.k_applicative_p,
-            "environment?": obj.k_environment_p,
-            "boolean?": obj.k_boolean_p,
-            "symbol?": obj.k_symbol_p,
-            "inert?": obj.k_inert_p,
-            "ignore?": obj.k_ignore_p,
-            "null?": obj.k_null_p,
-            "pair?": obj.k_pair_p,
+                "operative?": obj.k_operative_p,
+                "applicative?": obj.k_applicative_p,
+                "environment?": obj.k_environment_p,
+                "boolean?": obj.k_boolean_p,
+                "symbol?": obj.k_symbol_p,
+                "inert?": obj.k_inert_p,
+                "ignore?": obj.k_ignore_p,
+                "null?": obj.k_null_p,
+                "pair?": obj.k_pair_p,
 
-            "eq?": obj.k_eq_p,
-            "equal?": obj.k_equal_p,
+                "eq?": obj.k_eq_p,
+                "equal?": obj.k_equal_p,
 
-            "$if": obj.k_if,
-            "cons": obj.k_cons,
-            "make-environment": obj.k_make_environment,
-            "get-current-environment": obj.k_get_current_environment,
+                "$if": obj.k_if,
+                "cons": obj.k_cons,
+                "make-environment": obj.k_make_environment,
+                "get-current-environment": obj.k_get_current_environment,
 
-            "eval": obj.k_eval,
-            "$vau": obj.k_vau,
-            "wrap": obj.k_wrap,
-            "unwrap": obj.k_unwrap,
-            "$sequence": obj.k_sequence
-        }, [], true);
+                "eval": obj.k_eval,
+                "$vau": obj.k_vau,
+                "wrap": obj.k_wrap,
+                "unwrap": obj.k_unwrap,
+                "$sequence": obj.k_sequence
+            }, [], false);
+
+
+        ground.list = Parser.parse('($define! list (wrap ($vau x #ignore x)))').eval_(ground);
+
+
+        // set the ground as inmutable now that we added all bindings
+        ground.inmutable = true;
+        return ground;
     };
 
     Types.Env.makeGround = obj.makeGround;

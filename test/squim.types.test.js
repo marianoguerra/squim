@@ -48,6 +48,12 @@
             Q.equal(symbol.eval_(new Types.Env({}, [new Types.Env({foo: 4})])), 4);
             Q.equal(symbol.eval_(new Types.Env({foo: 5}, [new Types.Env({foo: 4})])), 5);
         });
+
+        Q.test("gather arguments gather all args in a var if arg list is a symbol", function () {
+            var bound = Types.util.gatherArguments(new Types.Pair(new Types.Int(1), Types.nil), new Types.Symbol("x")).x;
+            Q.equal(bound.left.value, 1);
+            Q.equal(bound.right, Types.nil);
+        });
     };
 
     return obj;
