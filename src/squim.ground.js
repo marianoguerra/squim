@@ -65,6 +65,30 @@
         return new Types.Applicative(parts.operative);
     };
 
+    obj.k_apply = function (args, env) {
+        var
+            applyEnv,
+            parts = Types.util.gatherArguments(args._expand(env), ["applicative", "object", "environment"], false, {environment: null});
+
+        if (parts.applicative === undefined || !Types.util.isApplicative(parts.applicative)) {
+            return Error.BadMatch("expected applicative (apply <applicative> <object> [<environment>])", {arg: parts.applicative});
+        }
+
+        if (parts.object === undefined || !Types.util.isListOrNil(parts.object)) {
+            return Error.BadMatch("expected object (apply <applicative> <object> [<environment>])", {arg: parts.object});
+        }
+
+        if (parts.environment === null) {
+            applyEnv = new Types.Env();
+        } else if (Types.util.isEnvironment(parts.environment)) {
+            applyEnv = parts.environment;
+        } else {
+            return Error.BadMatch("expected environment (apply <applicative> <object> [<environment>])", {arg: parts.environment});
+        }
+
+        return parts.applicative.apply(null, [parts.object, applyEnv]);
+    };
+
     obj.k_car = function (args, env) {
         var parts = Types.util.gatherArguments(args._expand(env), ["pair"], true);
 
@@ -88,7 +112,7 @@
     obj.k_unwrap = function (args, env) {
         var parts = Types.util.gatherArguments(args._expand(env), ["applicative"], true);
 
-        if (!(parts.applicative instanceof Types.Applicative)) {
+        if (!Types.util.isApplicative(parts.applicative)) {
             return Error.BadMatch("expected applicative", {arg: parts.applicative});
         }
 
@@ -307,12 +331,13 @@
                 "unwrap": obj.k_unwrap,
                 "$sequence": obj.k_sequence,
                 "car": obj.k_car,
-                "cdr": obj.k_cdr
+                "cdr": obj.k_cdr,
+                "apply": obj.k_apply
             }, [], false);
 
 
         Parser.parse('($define! list (wrap ($vau x #ignore x)))').eval_(ground);
-        Parser.parse("($define! apply ($lambda (appv arg . opt) (eval (cons (unwrap appv) arg) ($if (null? opt) (make-environment) (car opt)))))").eval_(ground);
+        //Parser.parse("($define! apply ($lambda (appv arg . opt) (eval (cons (unwrap appv) arg) ($if (null? opt) (make-environment) (car opt)))))").eval_(ground);
         Parser.parse("($define! list* ($lambda (head . tail) ($if (null? tail) head (cons head (apply list* tail)))))").eval_(ground);
 
 

@@ -386,8 +386,10 @@
         }
     };
 
-    obj.util.gatherArguments = function (items, names, exactNumber) {
-        var param, arg, args, iargs, params, iparams, bindings = {};
+    obj.util.gatherArguments = function (items, names, exactNumber, defaults) {
+        var param, paramName, arg, argValue, args, iargs, params, iparams, bindings = {};
+
+        defaults = defaults || {};
 
         if (Util.isArray(items)) {
             iargs = args = obj.util.arrayToPair(items);
@@ -407,27 +409,36 @@
         }
 
         while (iparams !== Pair.nil) {
-
-            if (iargs === Pair.nil) {
-                return Error.BadMatch(
-                    "less parameters provided than required",
-                    {params: params, args: args});
-            }
-
             param = iparams.left;
-            arg = iargs.left;
 
             if (param instanceof Symbol) {
-                bindings[param.value] = arg;
+                paramName = param.value;
             } else if (typeof param === "string") {
-                bindings[param] = arg;
+                paramName = param;
             } else {
                 return Error.BadMatch(
                     "expected identifier in argument list",
-                    {params: params, args: args});
+                    {params: params, args: args, got: param});
             }
 
-            if (iparams.right instanceof Pair || iparams.right instanceof Pair.Nil) {
+            arg = iargs.left;
+
+            if (iargs === Pair.nil) {
+                if (defaults[paramName] === undefined) {
+                    return Error.BadMatch(
+                        "less parameters provided than required",
+                        {params: params, args: args});
+                } else {
+                    argValue = defaults[paramName];
+                }
+            } else {
+                argValue = arg;
+            }
+
+            bindings[paramName] = argValue;
+
+
+            if (obj.util.isListOrNil(iparams.right)) {
                 iparams = iparams.right;
             } else if (iparams.right instanceof Symbol) {
                 bindings[iparams.right.value] = iargs.right;
@@ -472,6 +483,18 @@
         }
 
         return result;
+    };
+
+    obj.util.isApplicative = function (obj) {
+        return obj instanceof Applicative || obj instanceof Function;
+    };
+
+    obj.util.isEnvironment = function (obj) {
+        return obj instanceof Env;
+    };
+
+    obj.util.isListOrNil = function (obj) {
+        return obj instanceof Pair || obj instanceof Pair.Nil;
     };
 
     obj.Str = Str;

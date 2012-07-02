@@ -311,6 +311,22 @@
             Q.deepEqual(result.toJs(), [1, 2, 3, 4]);
         });
 
+        Q.test("apply works", function () {
+            var result;
+
+            result = Squim.run('(apply list (list 1 2) (get-current-environment))');
+            Q.equal(result.left.value, 1);
+            Q.equal(result.right.left.value, 2);
+
+            result = Squim.run('(apply list (list 1 2))');
+            Q.equal(result.left.value, 1);
+            Q.equal(result.right.left.value, 2);
+
+            result = Squim.run('(eval (cons (unwrap list ) (list 1 2)) (get-current-environment))');
+            Q.equal(result.left.value, 1);
+            Q.equal(result.right.left.value, 2);
+        });
+
         Q.test("car works", function () {
             function expectError(expr, errorName) {
                 Q.raises(
