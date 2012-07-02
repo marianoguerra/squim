@@ -321,7 +321,15 @@
             Q.equal(result.left.value, 1);
             Q.equal(result.right.left.value, 2);
 
+            result = Squim.run('(apply list (list 1 2) (make-environment))');
+            Q.equal(result.left.value, 1);
+            Q.equal(result.right.left.value, 2);
+
             result = Squim.run('(eval (cons (unwrap list ) (list 1 2)) (get-current-environment))');
+            Q.equal(result.left.value, 1);
+            Q.equal(result.right.left.value, 2);
+
+            result = Squim.run('(eval (cons (unwrap list ) (list 1 2)) (make-environment))');
             Q.equal(result.left.value, 1);
             Q.equal(result.right.left.value, 2);
         });
