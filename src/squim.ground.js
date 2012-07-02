@@ -152,13 +152,12 @@
     };
 
     obj.k_eval = function (args, env) {
-        var parts = Types.util.gatherArguments(args, ["expression", "environment"], true),
-            evalEnv = parts.environment.eval_(env);
+        var parts = Types.util.gatherArguments(args._expand(env), ["expression", "environment"], true);
 
-        expectEnvironment(evalEnv, args, env);
+        expectEnvironment(parts.environment, args, env);
 
         // eval the env to get it, don't eval the expression in this env
-        return parts.expression.eval_(evalEnv);
+        return parts.expression.eval_(parts.environment);
     };
 
     obj.k_define = function (args, env) {
