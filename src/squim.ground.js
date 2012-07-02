@@ -25,7 +25,7 @@
         // (formals eformals . expr)
         vauNames = new Pair(new Symbol("formals"), new Pair(new Symbol("eformal"), new Symbol("expr")));
 
-    obj.kLambda = function (args, env) {
+    obj.k_lambda = function (args, env) {
         var params, body;
 
         if (!(args instanceof Pair)) {
@@ -117,7 +117,7 @@
         return parts.expression.eval_(evalEnv);
     };
 
-    obj.kDefine = function (args, env) {
+    obj.k_define = function (args, env) {
         var
             name = args.left.value,
             value = args.right.left,
@@ -130,13 +130,13 @@
         return Types.Inert.inert;
     };
 
-    obj.kDisplay = function (args, env) {
+    obj.k_display = function (args, env) {
         alert(args.left.eval_(env).toJs());
 
         return Types.Inert.inert;
     };
 
-    obj.kApply = function (args, env) {
+    obj.k_apply = function (args, env) {
         return args.eval_(env);
     };
 
@@ -263,10 +263,10 @@
         var
             k_eval = obj.k_eval,
             ground = new Types.Env({
-                "$lambda": obj.kLambda,
-                "$define!": obj.kDefine,
-                "apply": obj.kApply,
-                "display": obj.kDisplay,
+                "$lambda": obj.k_lambda,
+                "$define!": obj.k_define,
+                "apply": obj.k_apply,
+                "display": obj.k_display,
 
                 "operative?": obj.k_operative_p,
                 "applicative?": obj.k_applicative_p,
