@@ -45,6 +45,26 @@
         return new Types.Operative(parts.formals, parts.eformal, parts.expr, env);
     };
 
+    obj.k_wrap = function (args, env) {
+        var parts = Types.util.gatherArguments(args._expand(env), ["operative"], true);
+
+        if (!(parts.operative instanceof Types.Operative)) {
+            return Error.BadMatch("expected combiner", {arg: parts.operative});
+        }
+
+        return new Types.Applicative(parts.operative);
+    };
+
+    obj.k_unwrap = function (args, env) {
+        var parts = Types.util.gatherArguments(args._expand(env), ["applicative"], true);
+
+        if (!(parts.applicative instanceof Types.Applicative)) {
+            return Error.BadMatch("expected applicative", {arg: parts.applicative});
+        }
+
+        return parts.applicative.operative;
+    };
+
     function expectEnvironment(item, args, env) {
         if (!(item instanceof Types.Env)) {
             // WARN: I'm not returning here, so if we stop throwing
@@ -248,7 +268,9 @@
             "get-current-environment": obj.k_get_current_environment,
 
             "eval": obj.k_eval,
-            "$vau": obj.k_vau
+            "$vau": obj.k_vau,
+            "wrap": obj.k_wrap,
+            "unwrap": obj.k_unwrap
         }, [], true);
     };
 
