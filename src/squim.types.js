@@ -392,6 +392,39 @@
         }
     };
 
+    function Cc(value, env, cont, expand) {
+        Type.apply(this, [value]);
+        this.env = env;
+        this.cont = cont;
+        this.expand = expand;
+    }
+
+    Cc.prototype = new Type(null);
+
+    Cc.prototype.toString = function () {
+        return "#[continuation]";
+    };
+
+    Cc.prototype.toJs = Cc.prototype.toString;
+
+    Cc.prototype.eq_p = function (obj) {
+        return this === obj;
+    };
+
+    Cc.prototype.equal_p = Cc.prototype.eq_p;
+
+    Cc.prototype.eval_ = function () {
+        if (this.expand) {
+            return this.value._expand(this);
+        } else {
+            return this.value.eval_(this);
+        }
+    };
+
+    Cc.prototype.resolve = function (value) {
+        return this.cont(value);
+    };
+
     obj.util.gatherArguments = function (items, names, exactNumber, defaults) {
         var param, paramName, arg, argValue, args, iargs, params, iparams, bindings = {};
 
@@ -517,6 +550,7 @@
     obj.Env = Env;
     obj.Applicative = Applicative;
     obj.Operative = Operative;
+    obj.Cc = Cc;
 
     obj.nil = Pair.nil;
     obj.inert = Inert.inert;
