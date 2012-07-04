@@ -285,8 +285,7 @@
     };
 
     obj.k_if = function (args, cc) {
-        var
-            parts = Types.util.gatherArguments(args, ["condition", "thenBlock", "elseBlock"]);
+        var parts = Types.util.gatherArguments(args, ["condition", "thenBlock", "elseBlock"]);
 
         return new Cc(parts.condition, cc.env, function (condResult) {
             if (condResult instanceof Types.Bool) {

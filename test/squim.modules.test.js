@@ -268,6 +268,7 @@
 
             Q.equal(Squim.run('(applicative? 1)').value, false);
             Q.equal(Squim.run('(applicative? ($vau () #ignore 1))').value, false);
+            Q.equal(Squim.run('(applicative? (wrap ($vau () #ignore 1)))').value, true);
         });
 
         Q.test("passing something other than #ignore or a symbol as 2nd param fails",
@@ -285,6 +286,7 @@
 
             Q.equal(Squim.run('(operative? 1)').value, false);
             Q.equal(Squim.run('(operative? ($vau () #ignore 1))').value, true);
+            Q.equal(Squim.run('(operative? (unwrap (wrap ($vau () #ignore 1))))').value, true);
         });
 
         Q.test("$sequence works", function () {
@@ -335,6 +337,10 @@
             result = Squim.run('(eval (cons list (list 1 2)) (make-environment))');
             Q.equal(result.left.value, 1);
             Q.equal(result.right.left.value, 2);
+
+            result = Squim.run('(apply ($lambda x x) 2)');
+            Q.equal(result.value, 2);
+
         });
 
         Q.test("car works", function () {
@@ -401,6 +407,9 @@
         Q.test("$vau works", function () {
             var result = Squim.run('(($vau (a) #ignore ($define! one 1) ($define! two 2) (list one two a)) foo)');
             Q.deepEqual(result.toJs(), [1, 2, 'foo']);
+
+            result = Squim.run('((wrap ($vau x #ignore x)) 1 2 3)');
+            Q.deepEqual(result.toJs(), [1, 2, 3]);
         });
     };
 
