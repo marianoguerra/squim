@@ -3,7 +3,6 @@ require.config({
     baseUrl: "js/",
     paths: {
         "squim": "../src/squim",
-        "squim.env": "../src/squim.env",
         "squim.types": "../src/squim.types",
         "squim.parser": "../src/squim.parser",
         "squim.error": "../src/squim.error",

@@ -1,22 +1,22 @@
-/*global define QUnit SquimEnv SquimTypes SquimError*/
+/*global define QUnit SquimTypes SquimError*/
 (function (root, factory) {
     "use strict";
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['qunit', 'squim.env', 'squim.types', 'squim.error'], function (Q, Env, Types, Error) {
+        define(['qunit', 'squim.types', 'squim.error'], function (Q, Types, Error) {
             // Also create a global in case some scripts
             // that are loaded still are looking for
             // a global even when an AMD loader is in use.
-            return (root.SquimEnvTest = factory(Q, Env, Types, Error));
+            return (root.SquimEnvTest = factory(Q, Types, Error));
         });
     } else {
         // Browser globals
-        root.SquimEnvTest = factory(QUnit, SquimEnv, SquimTypes, SquimError);
+        root.SquimEnvTest = factory(QUnit, SquimTypes, SquimError);
     }
-}(this, function (Q, Env, Types, Error) {
+}(this, function (Q, Types, Error) {
     "use strict";
-    var obj = {};
+    var obj = {}, Env = Types.Env;
 
     function isArray(obj) {
         return Object.prototype.toString.call(obj) === '[object Array]';

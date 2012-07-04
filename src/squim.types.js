@@ -1,20 +1,20 @@
-/*global define SquimError SquimEnv SquimUtil*/
+/*global define SquimError SquimUtil*/
 (function (root, factory) {
     "use strict";
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['json', 'squim.env', 'squim.error', 'squim.util'], function (JSON, Env, Error, Util) {
+        define(['json', 'squim.error', 'squim.util'], function (JSON, Error, Util) {
             // Also create a global in case some scripts
             // that are loaded still are looking for
             // a global even when an AMD loader is in use.
-            return (root.SquimTypes  = factory(JSON, Env, Error, Util));
+            return (root.SquimTypes  = factory(JSON, Error, Util));
         });
     } else {
         // Browser globals
-        root.SquimTypes = factory(JSON, SquimEnv, SquimError, SquimUtil);
+        root.SquimTypes = factory(JSON, SquimError, SquimUtil);
     }
-}(this, function (JSON, Env, Error, Util) {
+}(this, function (JSON, Error, Util) {
     "use strict";
     var obj = {};
 
@@ -63,7 +63,7 @@
         }
     };
 
-    Symbol.prototype.expand = Type.prototype.eval_;
+    Symbol.prototype.expand = Symbol.prototype.eval_;
 
     Symbol.prototype.eq_p = function (obj) {
         // because a string may contain the same value
@@ -235,6 +235,68 @@
     };
 
     Pair.nil = new Pair.Nil();
+
+    function Env(bindings, parents, inmutable) {
+
+        if (bindings === undefined) {
+            bindings = {};
+        }
+
+        if (parents === undefined) {
+            parents = [];
+        }
+
+        this.parents = parents;
+        this.bindings = bindings;
+        this.inmutable = (inmutable === true);
+    }
+
+    Env.prototype = new Type(null);
+
+    Env.prototype.define = function (name, value) {
+        if (this.inmutable) {
+            return Error.MutationError("can't mutate inmutable environment", {name: name, value: value});
+        } else {
+            this.bindings[name] = value;
+        }
+    };
+
+    Env.prototype.get = function (name) {
+        var i, value = this.bindings[name];
+
+        if (value === undefined) {
+            for (i = 0; i < this.parents.length; i += 1) {
+                value = this.parents[i].get(name);
+
+                if (value !== undefined) {
+                    return value;
+                }
+            }
+
+            return undefined;
+        } else {
+            return value;
+        }
+    };
+
+    Env.prototype.eq_p = function (obj) {
+        return this === obj;
+    };
+
+    Env.prototype.equal_p = Env.prototype.eq_p;
+
+    Env.prototype.toJs = function () {
+        var i, parents = [];
+
+        for (i = 0; i < this.parents.length; i += 1) {
+            parents.push(this.parents[i].toJs());
+        }
+
+        return {
+            "bindings": this.bindings,
+            "parents": parents
+        };
+    };
 
     function Applicative(operative) {
         this.operative = operative;

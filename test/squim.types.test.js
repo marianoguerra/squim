@@ -37,6 +37,7 @@
             check(new Types.Inert());
             check(new Types.Ignore());
             check(new Types.Str("asd"));
+            check(new Types.Env());
         });
 
         Q.module("Squim.Symbol");
