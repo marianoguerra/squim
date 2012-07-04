@@ -27,15 +27,33 @@
         return Parser.parse.apply(Parser, arguments);
     };
 
-    obj.run = function (code, env) {
-        var exp;
+    obj.trampoline = function (cc) {
+        while (cc) {
+            cc = cc.eval_();
+        }
+    };
+
+    obj.run = function (code, env, callback) {
+        var exp, result = null;
 
         if (env === undefined) {
             env = new obj.types.Env({}, [obj.types.Env.makeGround()]);
         }
 
         exp = obj.parse(code);
-        return exp.eval_(env);
+
+        function onResult(value) {
+            result = value;
+        }
+
+        if (callback) {
+            obj.trampoline(new Types.Cc(exp, env, callback));
+
+        } else {
+            obj.trampoline(new Types.Cc(exp, env, onResult));
+
+            return result;
+        }
     };
 
     return obj;

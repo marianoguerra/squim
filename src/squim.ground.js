@@ -18,6 +18,7 @@
 }(this, function (JSON, Types, Error, Util, Parser) {
     "use strict";
     var obj = {},
+        Cc = Types.Cc,
         Pair = Types.Pair,
         nil = Pair.nil,
         Nil = Pair.Nil,
@@ -25,7 +26,7 @@
         // (formals eformals . expr)
         vauNames = new Pair(new Symbol("formals"), new Pair(new Symbol("eformal"), new Symbol("expr")));
 
-    obj.k_lambda = function (args, env) {
+    obj.k_lambda = function (args, cc) {
         var params, body;
 
         if (!(args instanceof Pair)) {
@@ -44,91 +45,115 @@
             body = new Pair(new Symbol('$sequence'), args.right);
         }
 
-        return new Types.Applicative(new Types.Operative(params, Types.ignore, body, env));
+        return cc.resolve(new Types.Applicative(new Types.Operative(params, Types.ignore, body, cc.env)));
     };
 
-    obj.k_vau = function (args, env) {
+    obj.k_vau = function (args, cc) {
         var
             parts = Types.util.gatherArguments(args, vauNames),
             expr = new Pair(new Symbol('$sequence'), parts.expr);
 
-        return new Types.Operative(parts.formals, parts.eformal, expr, env);
+        return cc.resolve(new Types.Operative(parts.formals, parts.eformal, expr, cc.env));
     };
 
-    obj.k_wrap = function (args, env) {
-        var parts = Types.util.gatherArguments(args._expand(env), ["operative"], true);
+    obj.k_wrap = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var parts = Types.util.gatherArguments(eargs, ["operative"], true);
 
-        if (!(parts.operative instanceof Types.Operative)) {
-            return Error.BadMatch("expected combiner", {arg: parts.operative});
-        }
+            if (!(parts.operative instanceof Types.Operative)) {
+                return Error.BadMatch("expected combiner", {arg: parts.operative});
+            }
 
-        return new Types.Applicative(parts.operative);
+            return cc.resolve(new Types.Applicative(parts.operative));
+        }, true);
     };
 
-    obj.k_apply = function (args, env) {
-        var
-            applyEnv,
-            parts = Types.util.gatherArguments(args._expand(env), ["applicative", "object", "environment"], false, {environment: null});
+    obj.k_apply = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var
+                applyEnv,
+                parts = Types.util.gatherArguments(eargs, ["applicative", "object", "environment"], false, {environment: null});
 
-        if (parts.applicative === undefined || !Types.util.isApplicative(parts.applicative)) {
-            return Error.BadMatch("expected applicative (apply <applicative> <object> [<environment>])", {arg: parts.applicative});
-        }
+            if (parts.applicative === undefined || !Types.util.isApplicative(parts.applicative)) {
+                return Error.BadMatch("expected applicative (apply <applicative> <object> [<environment>])", {arg: parts.applicative});
+            }
 
-        if (parts.object === undefined || !Types.util.isListOrNil(parts.object)) {
-            return Error.BadMatch("expected object (apply <applicative> <object> [<environment>])", {arg: parts.object});
-        }
+            if (parts.object === undefined || !Types.util.isListOrNil(parts.object)) {
+                return Error.BadMatch("expected object (apply <applicative> <object> [<environment>])", {arg: parts.object});
+            }
 
-        if (parts.environment === null) {
-            applyEnv = new Types.Env();
-        } else if (Types.util.isEnvironment(parts.environment)) {
-            applyEnv = parts.environment;
-        } else {
-            return Error.BadMatch("expected environment (apply <applicative> <object> [<environment>])", {arg: parts.environment});
-        }
+            if (parts.environment === null) {
+                applyEnv = new Types.Env();
+            } else if (Types.util.isEnvironment(parts.environment)) {
+                applyEnv = parts.environment;
+            } else {
+                return Error.BadMatch("expected environment (apply <applicative> <object> [<environment>])", {arg: parts.environment});
+            }
 
-        return parts.applicative.apply(null, [parts.object, applyEnv]);
+            cc.env = applyEnv;
+
+            return parts.applicative.apply(null, [parts.object, cc]);
+        }, true);
     };
 
-    obj.k_car = function (args, env) {
-        var parts = Types.util.gatherArguments(args._expand(env), ["pair"], true);
+    obj.k_car = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var parts = Types.util.gatherArguments(eargs, ["pair"], true);
 
-        if (!(parts.pair instanceof Types.Pair)) {
-            return Error.ListExpected(parts.pair, {args: args, env: env});
-        }
+            if (!(parts.pair instanceof Types.Pair)) {
+                return Error.ListExpected(parts.pair, {args: args, env: cc.env});
+            }
 
-        return parts.pair.left;
+            return cc.resolve(parts.pair.left);
+        }, true);
     };
 
-    obj.k_cdr = function (args, env) {
-        var parts = Types.util.gatherArguments(args._expand(env), ["pair"], true);
+    obj.k_cdr = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var parts = Types.util.gatherArguments(eargs, ["pair"], true);
 
-        if (!(parts.pair instanceof Types.Pair)) {
-            return Error.ListExpected(parts.pair, {args: args, env: env});
-        }
+            if (!(parts.pair instanceof Types.Pair)) {
+                return Error.ListExpected(parts.pair, {args: args, env: cc.env});
+            }
 
-        return parts.pair.right;
+            return cc.resolve(parts.pair.right);
+        }, true);
     };
 
-    obj.k_unwrap = function (args, env) {
-        var parts = Types.util.gatherArguments(args._expand(env), ["applicative"], true);
-
-        if (!Types.util.isApplicative(parts.applicative)) {
-            return Error.BadMatch("expected applicative", {arg: parts.applicative});
-        }
-
-        return parts.applicative.operative;
+    obj.k_list = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(eargs);
+        }, true);
     };
 
-    obj.k_sequence = function (args, env) {
-        var last = Types.inert;
+    obj.k_unwrap = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var parts = Types.util.gatherArguments(eargs, ["applicative"], true);
 
-        while (args !== Types.nil) {
-            last = args.left.eval_(env);
+            if (!Types.util.isApplicative(parts.applicative)) {
+                return Error.BadMatch("expected applicative", {arg: parts.applicative});
+            }
 
-            args = args.right;
+            return cc.resolve(parts.applicative.operative);
+        }, true);
+    };
+
+    function evalSequenceLeft(remaining, cc) {
+        if (remaining === Types.nil) {
+            return cc.cont(Types.inert);
         }
 
-        return last;
+        return (new Cc(remaining.left, cc.env, function (result) {
+            if (remaining.right === Types.nil) {
+                return cc.resolve(result);
+            } else {
+                return evalSequenceLeft(remaining.right, cc);
+            }
+        })).eval_();
+    }
+
+    obj.k_sequence = function (args, cc) {
+        return evalSequenceLeft(args, cc);
     };
 
     function expectEnvironment(item, args, env) {
@@ -139,44 +164,44 @@
         }
     }
 
-    obj.k_make_environment = function (args, env) {
-        var parents = Types.util.pairToArray(args._expand(env), function (item, i) {
-            expectEnvironment(item, args, env);
+    obj.k_make_environment = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var parents = Types.util.pairToArray(eargs, function (item, i) {
+                expectEnvironment(item, args, cc.env);
+            });
+
+            return cc.resolve(new Types.Env({}, parents));
+        }, true);
+    };
+
+    obj.k_get_current_environment = function (args, cc) {
+        return cc.resolve(cc.env);
+    };
+
+    obj.k_eval = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var parts = Types.util.gatherArguments(eargs, ["expression", "environment"], true);
+
+            expectEnvironment(parts.environment, args, cc.env);
+
+            return new Cc(parts.expression, parts.environment, cc.cont);
+        }, true);
+    };
+
+    obj.k_define = function (args, cc) {
+        return new Cc(args.right.left, cc.env, function (evaledValue) {
+            var name = args.left.value;
+
+            cc.env.define(name, evaledValue);
+            return cc.resolve(Types.inert);
         });
-
-        return new Types.Env({}, parents);
     };
 
-    obj.k_get_current_environment = function (args, env) {
-        return env;
-    };
-
-    obj.k_eval = function (args, env) {
-        var parts = Types.util.gatherArguments(args._expand(env), ["expression", "environment"], true);
-
-        expectEnvironment(parts.environment, args, env);
-
-        // eval the env to get it, don't eval the expression in this env
-        return parts.expression.eval_(parts.environment);
-    };
-
-    obj.k_define = function (args, env) {
-        var
-            name = args.left.value,
-            value = args.right.left,
-            evaledValue;
-
-        evaledValue = value.eval_(env);
-
-        env.define(name, evaledValue);
-
-        return Types.Inert.inert;
-    };
-
-    obj.k_display = function (args, env) {
-        alert(args.left.eval_(env).toJs());
-
-        return Types.Inert.inert;
+    obj.k_display = function (args, cc) {
+        return new Cc(args.left, cc.env, function (value) {
+            alert(value.toJs());
+            return cc.resolve(Types.inert);
+        });
     };
 
     obj.allOfType = function (items, type) {
@@ -209,44 +234,26 @@
         return (ok) ? Types.t : Types.f;
     };
 
-    obj.k_boolean_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Bool);
-    };
+    function type_p(type) {
+        return function (args, cc) {
+            return new Cc(args, cc.env, function (eargs) {
+                cc.resolve(obj.allOfType(eargs, type));
+            }, true);
+        };
+    }
 
-    obj.k_symbol_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Symbol);
-    };
+    obj.k_boolean_p = type_p(Types.Bool);
+    obj.k_symbol_p = type_p(Types.Symbol);
+    obj.k_inert_p = type_p(Types.Inert);
+    obj.k_ignore_p = type_p(Types.Ignore);
+    obj.k_null_p = type_p(Nil);
+    obj.k_pair_p = type_p(Pair);
+    obj.k_environment_p = type_p(Types.Env);
+    obj.k_operative_p = type_p(Types.Operative);
+    obj.k_applicative_p = type_p([Types.Applicative, Function]);
 
-    obj.k_inert_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Inert);
-    };
-
-    obj.k_ignore_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Ignore);
-    };
-
-    obj.k_null_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Nil);
-    };
-
-    obj.k_pair_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Pair);
-    };
-
-    obj.k_environment_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Env);
-    };
-
-    obj.k_operative_p = function (args, env) {
-        return obj.allOfType(args._expand(env), Types.Operative);
-    };
-
-    obj.k_applicative_p = function (args, env) {
-        return obj.allOfType(args._expand(env), [Types.Applicative, Function]);
-    };
-
-    obj.compareAllToFirst = function (args, env, methodName) {
-        var ok = true, first, items = args._expand(env);
+    obj.compareAllToFirst = function (args, methodName) {
+        var ok = true, first, items = args;
 
         while (items !== Types.nil) {
             if (first === undefined) {
@@ -265,42 +272,48 @@
         return (ok) ? Types.t : Types.f;
     };
 
-    obj.k_eq_p = function (args, env) {
-        return obj.compareAllToFirst(args, env, "eq_p");
+    obj.k_eq_p = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(obj.compareAllToFirst(eargs, "eq_p"));
+        }, true);
     };
 
-    obj.k_equal_p = function (args, env) {
-        return obj.compareAllToFirst(args, env, "equal_p");
+    obj.k_equal_p = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(obj.compareAllToFirst(eargs, "equal_p"));
+        }, true);
     };
 
-    obj.k_if = function (args, env) {
+    obj.k_if = function (args, cc) {
         var
-            parts = Types.util.gatherArguments(args, ["condition", "thenBlock", "elseBlock"]),
-            condResult = parts.condition.eval_(env);
+            parts = Types.util.gatherArguments(args, ["condition", "thenBlock", "elseBlock"]);
 
-        if (condResult instanceof Types.Bool) {
-            if (condResult.value === true) {
-                return parts.thenBlock.eval_(env);
+        return new Cc(parts.condition, cc.env, function (condResult) {
+            if (condResult instanceof Types.Bool) {
+                if (condResult.value === true) {
+                    return new Cc(parts.thenBlock, cc.env, cc.cont);
+                } else {
+                    return new Cc(parts.elseBlock, cc.env, cc.cont);
+                }
             } else {
-                return parts.elseBlock.eval_(env);
+                return Error.BooleanExpected(condResult, {args: args, env: cc.env});
             }
-        } else {
-            return Error.BooleanExpected(condResult, {args: args, env: env});
-        }
+        });
     };
 
-    obj.k_cons = function (args, env) {
-        var
-            parts = Types.util.gatherArguments(args._expand(env), ["car", "cdr"], true),
-            car = parts.car,
-            cdr = parts.cdr;
+    obj.k_cons = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var
+                parts = Types.util.gatherArguments(eargs, ["car", "cdr"], true),
+                car = parts.car,
+                cdr = parts.cdr;
 
-        return new Pair(car, cdr);
+            return cc.resolve(new Pair(car, cdr));
+        }, true);
     };
 
     obj.makeGround = function () {
         var
-            k_eval = obj.k_eval,
             ground = new Types.Env({
                 "$lambda": obj.k_lambda,
                 "$define!": obj.k_define,
@@ -321,6 +334,7 @@
 
                 "$if": obj.k_if,
                 "cons": obj.k_cons,
+                "list": obj.k_list,
                 "make-environment": obj.k_make_environment,
                 "get-current-environment": obj.k_get_current_environment,
 
@@ -335,9 +349,9 @@
             }, [], false);
 
 
-        Parser.parse('($define! list (wrap ($vau x #ignore x)))').eval_(ground);
+        //Parser.parse('($define! list (wrap ($vau x #ignore x)))').eval_(ground);
         //Parser.parse("($define! apply ($lambda (appv arg . opt) (eval (cons (unwrap appv) arg) ($if (null? opt) (make-environment) (car opt)))))").eval_(ground);
-        Parser.parse("($define! list* ($lambda (head . tail) ($if (null? tail) head (cons head (apply list* tail)))))").eval_(ground);
+        //Parser.parse("($define! list* ($lambda (head . tail) ($if (null? tail) head (cons head (apply list* tail)))))").eval_(ground);
 
 
         // set the ground as inmutable now that we added all bindings

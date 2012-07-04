@@ -32,8 +32,8 @@
         return this.value;
     };
 
-    Type.prototype.eval_ = function () {
-        return this;
+    Type.prototype.eval_ = function (cc) {
+        return cc.resolve(this);
     };
 
     Type.prototype.eq_p = function (obj) {
@@ -42,6 +42,44 @@
 
     Type.prototype._expand = Type.prototype.eval_;
     Type.prototype.equal_p = Type.prototype.eq_p;
+
+    function Cc(value, env, cont, expand) {
+        Type.apply(this, [value]);
+        this.env = env;
+        this.cont = cont;
+        this.expand = expand;
+    }
+
+    Cc.prototype = new Type(null);
+
+    Cc.prototype.toString = function () {
+        return "#[continuation]";
+    };
+
+    Cc.prototype.toJs = Cc.prototype.toString;
+
+    Cc.prototype.eq_p = function (obj) {
+        return this === obj;
+    };
+
+    Cc.prototype.equal_p = Cc.prototype.eq_p;
+
+    Cc.prototype.eval_ = function () {
+        if (this.expand) {
+            return this.value._expand(this);
+        } else {
+            if (this.value instanceof Function) {
+                // functions eval to themselves
+                return this.resolve(this.value);
+            } else {
+                return this.value.eval_(this);
+            }
+        }
+    };
+
+    Cc.prototype.resolve = function (value) {
+        return this.cont(value);
+    };
 
     function Symbol(value) {
         Type.apply(this, [value]);
@@ -53,17 +91,17 @@
         return this.value;
     };
 
-    Symbol.prototype.eval_ = function (env) {
-        var result = env.get(this.value);
+    Symbol.prototype.eval_ = function (cc) {
+        var result = cc.env.get(this.value);
 
         if (result === undefined) {
-            return Error.UnboundSymbol(this.value, {env: env});
+            return Error.UnboundSymbol(this.value, {env: cc.env});
         } else {
-            return result;
+            return cc.resolve(result);
         }
     };
 
-    Symbol.prototype.expand = Symbol.prototype.eval_;
+    Symbol.prototype._expand = Symbol.prototype.eval_;
 
     Symbol.prototype.eq_p = function (obj) {
         // because a string may contain the same value
@@ -214,8 +252,15 @@
 
     // Note: Pair.eval_ is defined at the bottom to have access to all definitions
 
-    Pair.prototype._expand = function (env) {
-        return new Pair(this.left.eval_(env), this.right._expand(env));
+    Pair.prototype._expand = function (cc) {
+        var pair = this;
+        return new Cc(pair.left, cc.env,
+            function (left) {
+                return new Cc(pair.right, cc.env,
+                    function (right) {
+                        return cc.resolve(new Pair(left, right));
+                    }, true);
+            });
     };
 
     Pair.Nil = function () { };
@@ -314,11 +359,14 @@
 
     Applicative.prototype.apply = function (thisArg, funargs) {
         var
+            appl = this,
             args = funargs[0],
-            dynamicEnv = funargs[1],
-            evaledArgs = args._expand(dynamicEnv);
+            cc = funargs[1],
+            dynamicEnv = cc.env;
 
-        return this.operative.apply(thisArg, [evaledArgs, dynamicEnv]);
+        return new Cc(args, dynamicEnv, function (expandedArgs) {
+                return appl.operative.apply(thisArg, [expandedArgs, cc]);
+            }, true);
     };
 
     // TODO: eq_p and equal_p for Applicative
@@ -352,11 +400,12 @@
             bindings,
             localEnv,
             args = funargs[0],
-            dynamicEnv = funargs[1];
+            cc = funargs[1],
+            dynamicEnv = cc.env;
 
         localEnv = new Env({}, [this.staticEnv]);
 
-        //bindings = obj.util.gatherArguments(args._expand(localEnv), this.formals);
+        // XXX maybe this in a Cc?
         bindings = obj.util.gatherArguments(args, this.formals);
 
         for (key in bindings) {
@@ -367,62 +416,20 @@
             localEnv.define(this.eformal, dynamicEnv);
         }
 
-        return this.expr.eval_(localEnv);
+        return new Cc(this.expr, localEnv, function (result) {
+            return cc.resolve(result);
+        });
     };
 
     // TODO: eq_p and equal_p for Operative
 
-    Pair.prototype.eval_ = function (env) {
-        var
-            proc = this.left.eval_(env),
-            args = this.right;
-
-        if (!(args instanceof Pair) && !(args instanceof Pair.Nil)) {
-            return Error.ListExpected(args, {env: env, proc: proc, expr: args});
-        }
-
-        if (proc instanceof Applicative) {
-            return proc.apply(null, [args, env]);
-        } else if (proc instanceof Operative) {
-            return proc.apply(null, [args, env]);
-        } else if (typeof proc.apply === 'function') {
-            return proc.apply(null, [args, env]);
-        } else {
-            return Error.CombinerExpected(proc, {env: env, proc: proc, expr: args});
-        }
-    };
-
-    function Cc(value, env, cont, expand) {
-        Type.apply(this, [value]);
-        this.env = env;
-        this.cont = cont;
-        this.expand = expand;
-    }
-
-    Cc.prototype = new Type(null);
-
-    Cc.prototype.toString = function () {
-        return "#[continuation]";
-    };
-
-    Cc.prototype.toJs = Cc.prototype.toString;
-
-    Cc.prototype.eq_p = function (obj) {
-        return this === obj;
-    };
-
-    Cc.prototype.equal_p = Cc.prototype.eq_p;
-
-    Cc.prototype.eval_ = function () {
-        if (this.expand) {
-            return this.value._expand(this);
-        } else {
-            return this.value.eval_(this);
-        }
-    };
-
-    Cc.prototype.resolve = function (value) {
-        return this.cont(value);
+    Pair.prototype.eval_ = function (cc) {
+        // TODO check that this.right is a pair
+        // TODO check that this.left is a combiner
+        var pair = this;
+        return new Cc(pair.left, cc.env, function (left) {
+            return left.apply(null, [pair.right, cc]);
+        });
     };
 
     obj.util.gatherArguments = function (items, names, exactNumber, defaults) {

@@ -161,7 +161,8 @@
                 env = new Types.Env({"foo": val, "bar": val}, [Types.Env.makeGround()]);
 
             function check(expr, result) {
-                Q.equal(Squim.run(expr, env).value, result);
+                var actual = Squim.run(expr, env).value;
+                Q.equal(actual, result);
             }
 
             check("(eq?)", true);
@@ -288,6 +289,8 @@
 
         Q.test("$sequence works", function () {
             Q.equal(Squim.run('($sequence)'), Types.inert);
+            Q.equal(Squim.run('($sequence 1)').value, 1);
+            Q.equal(Squim.run('($sequence 0 1)').value, 1);
             Q.equal(Squim.run('($sequence (list 1) (list 2))').left.value, 2);
             Q.equal(Squim.run('($sequence ($define! foo 42) (list foo))').left.value, 42);
         });
@@ -298,17 +301,17 @@
                 env = new Types.Env({"foo": new Types.Int(4)}, [Types.Env.makeGround()]);
 
             Q.equal(Squim.run('(applicative? list)').value, true);
-            Q.equal(Squim.run('(operative? (unwrap list))').value, true);
+            //Q.equal(Squim.run('(operative? (unwrap list))').value, true);
             Q.equal(Squim.run('(list foo)', env).left.value, 4);
 
-            result = Squim.run('((unwrap list) foo)', env);
-            Q.equal(result.left.value, "foo");
+            //result = Squim.run('((unwrap list) foo)', env);
+            //Q.equal(result.left.value, "foo");
         });
 
-        Q.test("list* works", function () {
+        /*Q.test("list* works", function () {
             var result = Squim.run('(list* 1 2 3 4)');
             Q.deepEqual(result.toJs(), [1, 2, 3, 4]);
-        });
+        });*/
 
         Q.test("apply works", function () {
             var result;
@@ -325,11 +328,11 @@
             Q.equal(result.left.value, 1);
             Q.equal(result.right.left.value, 2);
 
-            result = Squim.run('(eval (cons (unwrap list ) (list 1 2)) (get-current-environment))');
+            result = Squim.run('(eval (cons list (list 1 2)) (get-current-environment))');
             Q.equal(result.left.value, 1);
             Q.equal(result.right.left.value, 2);
 
-            result = Squim.run('(eval (cons (unwrap list ) (list 1 2)) (make-environment))');
+            result = Squim.run('(eval (cons list (list 1 2)) (make-environment))');
             Q.equal(result.left.value, 1);
             Q.equal(result.right.left.value, 2);
         });

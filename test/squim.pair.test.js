@@ -54,25 +54,39 @@
         Q.test("_expand returns a list with the values evaluated in env", function () {
             var
                 pair = new Pair(new Types.Symbol("foo"), new Pair(new Types.Symbol("bar"), Pair.nil)),
-                env = new Types.Env();
+                env = new Types.Env(),
+                cc;
 
             env.define("foo", new Types.Int(1));
             env.define("bar", new Types.Int(2));
 
-            Q.deepEqual(pair._expand(env).toString(), "(1 2)");
+            cc = new Types.Cc(pair, env, function (result) {
+                Q.deepEqual(result.toString(), "(1 2)");
+            }, true);
+
+            while (cc) {
+                cc = cc.eval_();
+            }
         });
 
         Q.test("eval_ evaluates a pair in env", function () {
             var
                 // (list foo bar)
-                pair = new Pair(new Types.Symbol("list"), new Pair(new Types.Symbol("foo"), new Pair(new Types.Symbol("bar"), Pair.nil))),
+                pair = new Pair(new Types.Symbol("cons"), new Pair(new Types.Symbol("foo"), new Pair(new Types.Symbol("bar"), Pair.nil))),
                 ground = Ground.makeGround(),
-                env = new Types.Env({}, [ground]);
+                env = new Types.Env({}, [ground]),
+                cc;
 
             env.define("foo", new Types.Int(1));
             env.define("bar", new Types.Int(2));
 
-            Q.deepEqual(pair.eval_(env).toString(), "(1 2)");
+            cc = new Types.Cc(pair, env, function (result) {
+                Q.deepEqual(result.toString(), "(1 . 2)");
+            });
+
+            while (cc) {
+                cc = cc.eval_();
+            }
         });
     };
 

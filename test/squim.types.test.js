@@ -66,9 +66,15 @@
         Q.test("evaling a symbol on an env returns the binding", function () {
             var symbol = new Symbol("foo");
 
-            Q.equal(symbol.eval_(new Types.Env({foo: 4})), 4);
-            Q.equal(symbol.eval_(new Types.Env({}, [new Types.Env({foo: 4})])), 4);
-            Q.equal(symbol.eval_(new Types.Env({foo: 5}, [new Types.Env({foo: 4})])), 5);
+            function check(env, expected) {
+                (new Types.Cc(symbol, env, function (result) {
+                    Q.equal(result, expected);
+                })).eval_();
+            }
+
+            check(new Types.Env({foo: 4}), 4);
+            check(new Types.Env({}, [new Types.Env({foo: 4})]), 4);
+            check(new Types.Env({foo: 5}, [new Types.Env({foo: 4})]), 5);
         });
 
         Q.test("gather arguments gather all args in a var if arg list is a symbol", function () {
