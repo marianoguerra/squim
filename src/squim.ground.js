@@ -78,7 +78,7 @@
                 return Error.BadMatch("expected applicative (apply <applicative> <object> [<environment>])", {arg: parts.applicative});
             }
 
-            if (parts.object === undefined || !Types.util.isListOrNil(parts.object)) {
+            if (parts.object === undefined) {
                 return Error.BadMatch("expected object (apply <applicative> <object> [<environment>])", {arg: parts.object});
             }
 
