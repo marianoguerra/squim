@@ -300,6 +300,35 @@
         });
     };
 
+    obj.k_cond = function (args, cc) {
+        var clause, test, body;
+
+        if (args === Types.nil) {
+            return cc.resolve(Types.inert);
+        } else {
+            clause = args.left;
+
+            if (!(clause instanceof Pair)) {
+                return Error.BadMatch("expected (<test> . <body>) in $cond", {args: args});
+            } else {
+                test = clause.left;
+                body = clause.right;
+
+                return new Cc(test, cc.env, function (testValue) {
+
+                    if (!(testValue instanceof Types.Bool)) {
+                        return Error.BadMatch("test evaluated to a non boolean value", {args: args});
+                    } else if (testValue.value === true) {
+                        return evalSequenceLeft(body, cc);
+                    } else {
+                        return obj.k_cond(args.right, cc);
+                    }
+
+                });
+            }
+        }
+    };
+
     obj.k_cons = function (args, cc) {
         return new Cc(args, cc.env, function (eargs) {
             var
@@ -332,6 +361,7 @@
                 "equal?": obj.k_equal_p,
 
                 "$if": obj.k_if,
+                "$cond": obj.k_cond,
                 "cons": obj.k_cons,
                 "list": obj.k_list,
                 "make-environment": obj.k_make_environment,

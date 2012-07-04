@@ -137,6 +137,40 @@
 
         });
 
+        Q.test("$cond works", function () {
+            function check(expr, result) {
+                Q.equal(Squim.run(expr).value, result);
+            }
+
+            function expectError(expr, errorName) {
+                Q.raises(
+                    function () {
+                        Squim.run(expr);
+                    },
+                    function (error) {
+                        return error.name === errorName;
+                    }
+                );
+            }
+
+            Q.equal(Squim.run("($cond)"), Types.inert);
+            expectError("($cond (1 2))", Squim.errors.type.BadMatch);
+            check("($cond (#t 1))", 1);
+            check("($cond (#t 2))", 2);
+            check("($cond (#t 1 2))", 2);
+            check("($cond (#t 1 2 3))", 3);
+
+            check("($cond (#f 1) (#t 2))", 2);
+            check("($cond (#f 1) (#t 2 3))", 3);
+            check("($cond (#f 1) ((car (cons #t #f)) 2 3))", 3);
+            check("($cond (#f 1) (#f 2 3) (#t 4))", 4);
+            // next condition is not evaluated (it has an error)
+            check("($cond (#t 1) (1 2))", 1);
+            expectError("($cond (#f 1) (1 2))", Squim.errors.type.BadMatch);
+            Q.equal(Squim.run("($cond (#t))"), Types.inert);
+        });
+
+
         Q.test("symbol? works", function () {
             function check(expr, result) {
                 Q.equal(Squim.run(expr).value, result);
