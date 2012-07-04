@@ -19,6 +19,26 @@
     var obj = {}, Types = Squim.types, Symbol = Squim.types.Symbol;
 
     obj.test = function () {
+
+        Q.module("Squim.Type");
+
+        Q.test("types are subclasses of Type", function () {
+            function check(obj) {
+                Q.ok(obj instanceof Squim.types.Type);
+            }
+
+            check(new Types.Int(1));
+            check(new Types.Float(1.2));
+            check(new Types.Pair());
+            check(new Types.Pair.Nil());
+            check(new Types.Bool(false));
+            check(new Types.Applicative());
+            check(new Types.Operative(new Types.Pair(), Types.ignore));
+            check(new Types.Inert());
+            check(new Types.Ignore());
+            check(new Types.Str("asd"));
+        });
+
         Q.module("Squim.Symbol");
 
         Q.test("construct symbol", function () {

@@ -20,13 +20,34 @@
 
     obj.util = {};
 
-    function Symbol(name) {
-        this.value = name;
+    function Type(value) {
+        this.value = value;
     }
 
-    Symbol.prototype.toJs = function () {
+    Type.prototype.toString = function () {
+        return JSON.stringify(this.value);
+    };
+
+    Type.prototype.toJs = function () {
         return this.value;
     };
+
+    Type.prototype.eval_ = function () {
+        return this;
+    };
+
+    Type.prototype.eq_p = function (obj) {
+        return this.value === obj.value;
+    };
+
+    Type.prototype._expand = Type.prototype.eval_;
+    Type.prototype.equal_p = Type.prototype.eq_p;
+
+    function Symbol(value) {
+        Type.apply(this, [value]);
+    }
+
+    Symbol.prototype = new Type(null);
 
     Symbol.prototype.toString = function () {
         return this.value;
@@ -42,7 +63,10 @@
         }
     };
 
+    Symbol.prototype.expand = Type.prototype.eval_;
+
     Symbol.prototype.eq_p = function (obj) {
+        // because a string may contain the same value
         if (obj instanceof Symbol) {
             return this.value === obj.value;
         } else {
@@ -53,20 +77,17 @@
     Symbol.prototype.equal_p = Symbol.prototype.eq_p;
 
     function Str(value) {
-        this.value = value;
+        Type.apply(this, [value]);
     }
+
+    Str.prototype = new Type(null);
 
     Str.prototype.toJs = function () {
         return JSON.stringify(this.value);
     };
 
-    Str.prototype.toString = Str.prototype.toJs;
-
-    Str.prototype.eval_ = function (env) {
-        return this;
-    };
-
     Str.prototype.eq_p = function (obj) {
+        // because a symbol may contain the same value
         if (obj instanceof Str) {
             return this.value === obj.value;
         } else {
@@ -77,84 +98,30 @@
     Str.prototype.equal_p = Str.prototype.eq_p;
 
     function Int(value) {
-        this.value = value;
+        Type.apply(this, [value]);
     }
 
-    Int.prototype.toJs = function () {
-        return this.value;
-    };
-
-    Int.prototype.eval_ = function (env) {
-        return this;
-    };
-
-    Int.prototype.toString = function () {
-        return JSON.stringify(this.value);
-    };
-
-    Int.prototype.eq_p = function (obj) {
-        if (obj instanceof Int) {
-            return this.value === obj.value;
-        } else {
-            return false;
-        }
-    };
-
-    Int.prototype.equal_p = Int.prototype.eq_p;
+    Int.prototype = new Type(null);
 
     function Bool(value) {
-        this.value = value;
+        Type.apply(this, [value]);
     }
 
-    Bool.prototype.toJs = function () {
-        return this.value;
-    };
-
-    Bool.prototype.eval_ = function (env) {
-        return this;
-    };
+    Bool.prototype = new Type(null);
 
     Bool.prototype.toString = function () {
         return (this.value) ? "#t" : "#f";
     };
 
-    Bool.prototype.eq_p = function (obj) {
-        if (obj instanceof Bool) {
-            return this.value === obj.value;
-        } else {
-            return false;
-        }
-    };
-
-    Bool.prototype.equal_p = Bool.prototype.eq_p;
-
     function Float(value) {
-        this.value = value;
+        Type.apply(this, [value]);
     }
 
-    Float.prototype.toJs = function () {
-        return this.value;
-    };
-
-    Float.prototype.eval_ = function (env) {
-        return this;
-    };
-
-    Float.prototype.toString = function () {
-        return JSON.stringify(this.value);
-    };
-
-    Float.prototype.eq_p = function (obj) {
-        if (obj instanceof Float) {
-            return this.value === obj.value;
-        } else {
-            return false;
-        }
-    };
-
-    Float.prototype.equal_p = Float.prototype.eq_p;
+    Float.prototype = new Type(null);
 
     function Inert() { }
+
+    Inert.prototype = new Type(null);
 
     Inert.prototype.toJs = function () {
         return "#inert";
@@ -163,10 +130,6 @@
     Inert.prototype.toString = Inert.prototype.toJs;
 
     Inert.inert = new Inert();
-
-    Inert.prototype.eval_ = function (env) {
-        return this;
-    };
 
     Inert.prototype.eq_p = function (obj) {
         if (obj instanceof Inert) {
@@ -182,6 +145,8 @@
 
     function Ignore() { }
 
+    Ignore.prototype = new Type(null);
+
     Ignore.prototype.toJs = function () {
         return "#ignore";
     };
@@ -189,10 +154,6 @@
     Ignore.prototype.toString = Ignore.prototype.toJs;
 
     Ignore.ignore = new Ignore();
-
-    Ignore.prototype.eval_ = function (env) {
-        return this;
-    };
 
     Ignore.prototype.eq_p = function (obj) {
         if (obj instanceof Ignore) {
@@ -210,6 +171,8 @@
         this.left = left;
         this.right = right;
     }
+
+    Pair.prototype = new Type(null);
 
     Pair.prototype.toJs = function () {
         var result = [this.left.toJs()];
@@ -255,16 +218,9 @@
         return new Pair(this.left.eval_(env), this.right._expand(env));
     };
 
-    Pair.Nil = function () {
-    };
+    Pair.Nil = function () { };
 
-    Pair.Nil.prototype.eval_ = function (env) {
-        return this;
-    };
-
-    Pair.Nil.prototype._expand = function (env) {
-        return Pair.nil;
-    };
+    Pair.Nil.prototype = new Type(null);
 
     Pair.Nil.prototype.toString = function () {
         return "()";
@@ -272,14 +228,6 @@
 
     Pair.Nil.prototype.toJs = function () {
         return [];
-    };
-
-    Pair.Nil.prototype.eq_p = function (obj) {
-        if (obj instanceof Pair.Nil) {
-            return this === obj;
-        } else {
-            return false;
-        }
     };
 
     Pair.Nil.prototype.equal_p = function (obj) {
@@ -292,9 +240,7 @@
         this.operative = operative;
     }
 
-    Applicative.prototype.eval_ = function (env) {
-        return this;
-    };
+    Applicative.prototype = new Type(null);
 
     Applicative.prototype.toJs = function (env) {
         return ['$lambda', this.operative.formals.toJs(), this.operative.expr.toJs()];
@@ -328,9 +274,7 @@
         }
     }
 
-    Operative.prototype.eval_ = function (env) {
-        return this;
-    };
+    Operative.prototype = new Type(null);
 
     Operative.prototype.toJs = function (env) {
         return ['$vau', this.formals.toJs(), this.eformal.toJs(), this.expr.toJs()];
@@ -496,6 +440,8 @@
     obj.util.isListOrNil = function (obj) {
         return obj instanceof Pair || obj instanceof Pair.Nil;
     };
+
+    obj.Type = Type;
 
     obj.Str = Str;
     obj.Int = Int;
