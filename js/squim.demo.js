@@ -30,7 +30,7 @@ require(['squim', 'jquery'], function (Squim, $) {
     }
 
     function writeResult(result) {
-        $("#result").html(JSON.stringify(result));
+        $("#result").html(result);
     }
 
     function writeEnv(env) {
@@ -41,7 +41,7 @@ require(['squim', 'jquery'], function (Squim, $) {
         $("#run").click(function () {
             var result = Squim.run(getCode(), env);
 
-            writeResult(result.toJs());
+            writeResult(result.toString());
             writeEnv(env.toJs());
         });
     });
