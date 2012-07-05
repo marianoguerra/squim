@@ -4,6 +4,7 @@
 %lex
 %%
 
+";".*\n+               /* ignore */
 ";".*$                 /* ignore */
 \s+                    /* skip whitespace */
 "."                    return 'DOT'

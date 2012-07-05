@@ -397,40 +397,42 @@ var YYSTATE=YY_START
 switch($avoiding_name_collisions) {
 case 0:/* ignore */
 break;
-case 1:/* skip whitespace */
+case 1:/* ignore */
 break;
-case 2:return 9
+case 2:/* skip whitespace */
 break;
-case 3:return 11
+case 3:return 9
 break;
-case 4:return 10
+case 4:return 11
 break;
-case 5:return 12
+case 5:return 10
 break;
-case 6:return 15
+case 6:return 12
 break;
-case 7:return 16
+case 7:return 15
 break;
-case 8:return 17
+case 8:return 16
 break;
-case 9:return 18
+case 9:return 17
 break;
-case 10:return 13
+case 10:return 18
 break;
-case 11:return 14
+case 11:return 13
 break;
-case 12:return 7
+case 12:return 14
 break;
-case 13:return 8
+case 13:return 7
 break;
-case 14:return 5
+case 14:return 8
 break;
-case 15:return 'INVALID'
+case 15:return 5
+break;
+case 16:return 'INVALID'
 break;
 }
 };
-lexer.rules = [/^;.*$/,/^\s+/,/^\./,/^[\-\+]?[0-9]+\.[0-9]+\b/,/^[\-\+]?[0-9]+\b/,/^[\-\+]?#[bodx][0-9a-zA-Z]+\b/,/^#t\b/,/^#f\b/,/^#inert\b/,/^#ignore\b/,/^".*?"/,/^[A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+/,/^\(/,/^\)/,/^$/,/^./];
-lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"inclusive":true}};
+lexer.rules = [/^;.*\n+/,/^;.*$/,/^\s+/,/^\./,/^[\-\+]?[0-9]+\.[0-9]+\b/,/^[\-\+]?[0-9]+\b/,/^[\-\+]?#[bodx][0-9a-zA-Z]+\b/,/^#t\b/,/^#f\b/,/^#inert\b/,/^#ignore\b/,/^".*?"/,/^[A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+/,/^\(/,/^\)/,/^$/,/^./];
+lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"inclusive":true}};
 return lexer;})()
 parser.lexer = lexer;
 return parser;

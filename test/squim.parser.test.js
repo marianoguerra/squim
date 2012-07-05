@@ -178,7 +178,7 @@
 
         Q.test("ignores comments", function () {
             function check(expr) {
-                var cleanExpr = expr.replace(/ *;.*/, ""),
+                var cleanExpr = expr.replace(/ *;.*/, "").replace("\n", ""),
                     reconstructed = Parser.parse(expr).toString();
 
                 Q.equal(cleanExpr, reconstructed, "'" + expr + "' '" + cleanExpr + "' '" + reconstructed + "'");
@@ -192,6 +192,7 @@
             check('"hi";;;;;;;;;;;;');
             check('map ; ; ;   ;;;');
             check('(+ 1 2) ; adition');
+            check('(+ 1 2) ; adition\n');
             check('(+ 1 2 3 4 5 6)                 ;');
             check('(+ 1 2 (- 3 4) (* 5 6))       ;               asd');
             check('(+ 1 2 (- 3 4) (* 5 6 7 (/ 8 9 10.2))) ; (+ 1 2)');
