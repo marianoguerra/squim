@@ -427,6 +427,139 @@
             result = Squim.run('((wrap ($vau x #ignore x)) 1 2 3)');
             Q.deepEqual(result.toJs(), [1, 2, 3]);
         });
+
+        Q.test("+ works", function () {
+            check('(+)', 0);
+            check('(+ 1)', 1);
+            check('(+ -1)', -1);
+            check('(+ 3)', 3);
+            check('(+ 3 -1)', 2);
+            check('(+ 1 2)', 3);
+            check('(+ 1 2 3 4 5 6 7 8 9)', 45);
+            check('(+ 1.2 2)', 3.2);
+            check('(+ 1.2 1.2)', 2.4);
+            check('(+ 1.2 1.2 1.1)', 3.5);
+
+            check('(+ "foo")', "foo");
+            check('(+ "foo" "bar")', "foobar");
+            check('(+ "foo" "bar" "baz")', "foobarbaz");
+            check('(+ "foo " "bar" " baz")', "foo bar baz");
+        });
+
+        Q.test("- works", function () {
+            expectError('(-)', Squim.errors.type.BadMatch, "at least 2 arguments required");
+            expectError('(- 1)', Squim.errors.type.BadMatch, "at least 2 arguments required");
+            check('(- 5 3)', 2);
+            check('(- 10 -8)', 18);
+            check('(- 100 2 3 4 5 6 7 8 9)', 56);
+            check('(- 1.5 1)', 0.5);
+            check('(- 1.2 1.2)', 0.0);
+            check('(- 1.2 1.2 1.1)', -1.1);
+        });
+
+        Q.test("/ works", function () {
+            expectError('(/)', Squim.errors.type.BadMatch, "at least 2 arguments required");
+            expectError('(/ 1)', Squim.errors.type.BadMatch, "at least 2 arguments required");
+
+            check('(/ 6 3)', 2);
+            check('(/ 10 -5)', -2);
+            check('(/ 100 2 5)', 10);
+            check('(/ 100 2 5 2)', 5);
+            check('(/ 1.5 1)', 1.5);
+            check('(/ 1.2 1.2)', 1.0);
+            check('(/ 2.4 1.2 1)', 2.0);
+        });
+
+        Q.test("* works", function () {
+            check('(*)', 1);
+            check('(* 1)', 1);
+            check('(* 3)', 3);
+            check('(* 1 2)', 2);
+            check('(* -1 2)', -2);
+            check('(* 1 2 3 4 5 6 7 8 9)', 362880);
+            check('(* 1 2 3 -4 5 6 7 8 9)', -362880);
+            check('(* 1 2 3 -4 5 6 -7 8 9)', 362880);
+            check('(* 1.2 2)', 2.4);
+            check('(* 1.2 1.2)', 1.44);
+            check('(* 1.2 -1.2)', -1.44);
+            check('(* 1.2 1.2 1.2)', 1.728);
+            check('(* 1.2 -1.2 -1.2)', 1.728);
+
+            check('(+ (* 2 3) (- 3 1) (* 1 2 3) (/ (+ 1 3) 2 1))', 16);
+        });
+
+        Q.test("=? works", function () {
+            check('(=?)', true);
+            check('(=? 1)', true);
+            check('(=? 12)', true);
+            check('(=? 12 12)', true);
+            check('(=? 12 12 12 (+ 11 1))', true);
+            check('(=? 12 12.0)', true);
+            check('(=? 12 12.0 12 12.0)', true);
+            check('(=? 12 12.1)', false);
+            check('(=? 12 12.1 12)', false);
+            check('(=? 12 13)', false);
+            check('(=? 12 12 13)', false);
+            check('(=? 12 12 12 13)', false);
+        });
+
+        Q.test("<? works", function () {
+            check('(<?)', true);
+            check('(<? 1)', true);
+            check('(<? 1 2)', true);
+            check('(<? 1 2 3 4 5 6 7 8)', true);
+            check('(<? 1 2 3 4 5 6 7 8)', true);
+
+            check('(<? 1 1)', false);
+            check('(<? 2 1)', false);
+            check('(<? 1.01 1)', false);
+            check('(<? 1 2 2)', false);
+            check('(<? 1 2 3 3)', false);
+        });
+
+        Q.test("<=? works", function () {
+            check('(<=?)', true);
+            check('(<=? 1)', true);
+            check('(<=? 1 2)', true);
+            check('(<=? 1 2 3 4 5 6 7 8)', true);
+            check('(<=? 1 2 3 4 5 6 7 8)', true);
+
+            check('(<=? 1 1)', true);
+            check('(<=? 2 1)', false);
+            check('(<=? 1.01 1)', false);
+            check('(<=? 1 2 2)', true);
+            check('(<=? 1 2 3 3)', true);
+            check('(<=? 1 3 7 15)', true);
+            check('(<=? 1 7 3 15)', false);
+        });
+
+        Q.test(">? works", function () {
+            check('(>?)', true);
+            check('(>? 1)', true);
+            check('(>? 2 1)', true);
+            check('(>? 8 7 6 5 4 3 2 1)', true);
+
+            check('(>? 1 1)', false);
+            check('(>? 1 2)', false);
+            check('(>? 1 1.01)', false);
+            check('(>? 2 2 1)', false);
+            check('(>? 3 3 2 1)', false);
+        });
+
+        Q.test(">=? works", function () {
+            check('(>=?)', true);
+            check('(>=? 1)', true);
+            check('(>=? 2 1)', true);
+            check('(>=? 8 7 6 5 4 3 2 1)', true);
+
+            check('(>=? 1 1)', true);
+            check('(>=? 1 2)', false);
+            check('(>=? 1 1.01)', false);
+            check('(>=? 2 2 1)', true);
+            check('(>=? 3 3 2 1)', true);
+            check('(>=? 15 7 3 1)', true);
+            check('(>=? 15 3 7 1)', false);
+        });
     };
 
     return obj;

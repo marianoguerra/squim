@@ -39,7 +39,8 @@
         SymbolExpected: "SymbolExpected",
         EnvironmentExpected: "EnvironmentExpected",
         BadMatch: "BadMatch",
-        MutationError: "MutationError"
+        MutationError: "MutationError",
+        ValueError: "ValueError",
     };
 
     obj.UnboundSymbol = function (name, ctx) {
@@ -68,6 +69,10 @@
 
     obj.BadMatch = function (msg, ctx) {
         throw makeException(obj.type.BadMatch, {msg: msg, ctx: ctx});
+    };
+
+    obj.ValueError = function (msg, ctx) {
+        throw makeException(obj.type.ValueError, {msg: msg, ctx: ctx});
     };
 
     obj.MutationError = function (msg, ctx) {

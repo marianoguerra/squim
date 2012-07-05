@@ -121,6 +121,18 @@
 
     Str.prototype = new Type(null);
 
+    Str.prototype.getOp = function (op) {
+        var fun = null;
+
+        if (op === '+') {
+            fun = function (a, b) {
+                return a + b;
+            };
+        }
+
+        return fun;
+    };
+
     Str.prototype.toJs = function () {
         return JSON.stringify(this.value);
     };
@@ -142,6 +154,60 @@
 
     Int.prototype = new Type(null);
 
+    Int.prototype.getOp = function (op) {
+        var fun = null;
+        switch (op) {
+        case '+':
+            fun = function (a, b) {
+                return a + b;
+            };
+            break;
+        case '-':
+            fun = function (a, b) {
+                return a - b;
+            };
+            break;
+        case '*':
+            fun = function (a, b) {
+                return a * b;
+            };
+            break;
+        case '/':
+            fun = function (a, b) {
+                return a / b;
+            };
+            break;
+
+        case '=?':
+            fun = function (a, b) {
+                return a === b;
+            };
+            break;
+        case '<?':
+            fun = function (a, b) {
+                return a < b;
+            };
+            break;
+        case '<=?':
+            fun = function (a, b) {
+                return a <= b;
+            };
+            break;
+        case '>?':
+            fun = function (a, b) {
+                return a > b;
+            };
+            break;
+        case '>=?':
+            fun = function (a, b) {
+                return a >= b;
+            };
+            break;
+        }
+
+        return fun;
+    };
+
     function Bool(value) {
         Type.apply(this, [value]);
     }
@@ -157,6 +223,8 @@
     }
 
     Float.prototype = new Type(null);
+
+    Float.prototype.getOp = Int.prototype.getOp;
 
     function Inert() { }
 

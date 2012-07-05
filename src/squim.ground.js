@@ -389,6 +389,124 @@
         }, cc, true);
     };
 
+    function applyOp(op, callargs, min, defaultForZeroArgs) {
+        var args = Types.util.pairToArray(callargs), first, second, opfun, i;
+
+        if (args.length < min) {
+            return Error.BadMatch("at least " + min + " arguments required", args);
+        } else if (args.length === 0) {
+            return new Types.Int(defaultForZeroArgs);
+        } else {
+            first = args[0];
+            opfun = first.getOp(op);
+            first = args[0].value;
+
+            if (opfun === null) {
+                return Error.BadMatch("invalid operation " + op + " for " + typeof(first));
+            } else {
+
+                for (i = 1; i < args.length; i += 1) {
+                    second = args[i].value;
+                    first = opfun(first, second);
+                }
+
+                if (typeof first === "string") {
+                    return new Types.Str(first);
+                } else if (typeof first === "number" && (first % 1) === 0) {
+                    return new Types.Int(first);
+                } else if (typeof first === "number") {
+                    return new Types.Float(first);
+                } else {
+                    return Error.ValueError("unknown result type: " + typeof first);
+                }
+            }
+        }
+    }
+
+    function applyOpByPairs(op, callargs, defaultForZeroArgs) {
+        var args = Types.util.pairToArray(callargs), first, second, opfun, i, result;
+
+        if (args.length === 0) {
+            return defaultForZeroArgs;
+        } else {
+            first = args[0];
+            opfun = first.getOp(op);
+            first = args[0].value;
+
+            if (opfun === null) {
+                return Error.BadMatch("invalid operation " + op + " for " + typeof(first));
+            } else {
+
+                for (i = 1; i < args.length; i += 1) {
+                    second = args[i].value;
+                    result = opfun(first, second);
+
+                    if (!result) {
+                        return Types.f;
+                    }
+
+                    first = second;
+                }
+
+                return Types.t;
+            }
+        }
+    }
+
+    obj.k_add_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOp('+', eargs, 0, 0));
+        }, cc, true);
+    };
+
+    obj.k_sub_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOp('-', eargs, 2, null));
+        }, cc, true);
+    };
+
+    obj.k_mul_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOp('*', eargs, 0, 1));
+        }, cc, true);
+    };
+
+    obj.k_div_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOp('/', eargs, 2, null));
+        }, cc, true);
+    };
+
+    obj.k_eq_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOpByPairs('=?', eargs, Types.t));
+        }, cc, true);
+    };
+
+    obj.k_lt_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOpByPairs('<?', eargs, Types.t));
+        }, cc, true);
+    };
+
+    obj.k_gt_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOpByPairs('>?', eargs, Types.t));
+        }, cc, true);
+    };
+
+    obj.k_le_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOpByPairs('<=?', eargs, Types.t));
+        }, cc, true);
+    };
+
+    obj.k_ge_op = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            return cc.resolve(applyOpByPairs('>=?', eargs, Types.t));
+        }, cc, true);
+    };
+
     obj.makeGround = function () {
         var
             ground = new Types.Env({
@@ -409,6 +527,17 @@
                 "ignore?": obj.k_ignore_p,
                 "null?": obj.k_null_p,
                 "pair?": obj.k_pair_p,
+
+                "+": obj.k_add_op,
+                "-": obj.k_sub_op,
+                "*": obj.k_mul_op,
+                "/": obj.k_div_op,
+
+                "<?": obj.k_lt_op,
+                ">?": obj.k_gt_op,
+                "=?": obj.k_eq_op,
+                "<=?": obj.k_le_op,
+                ">=?": obj.k_ge_op,
 
                 "eq?": obj.k_eq_p,
                 "equal?": obj.k_equal_p,
