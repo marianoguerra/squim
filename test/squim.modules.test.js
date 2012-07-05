@@ -18,14 +18,33 @@
     "use strict";
     var obj = {}, Types = Squim.types;
 
+    function check(expr, expected, compareAsIs, env) {
+        var result = Squim.run(expr, env), value;
+
+        if (!compareAsIs) {
+            value = result.value;
+        } else {
+            value = result;
+        }
+
+        Q.equal(value, expected);
+    }
+
+    function expectError(expr, errorName) {
+        Q.raises(
+            function () {
+                Squim.run(expr);
+            },
+            function (error) {
+                return error.name === errorName;
+            }
+        );
+    }
+
     obj.test = function () {
         Q.module("Squim mods");
 
         Q.test("boolean? works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
             check("(boolean? #t)", true);
             check("(boolean? #f)", true);
             check("(boolean? #f #t)", true);
@@ -39,10 +58,6 @@
         });
 
         Q.test("inert? works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
             check("(inert? #inert)", true);
             check("(inert? #inert)", true);
             check("(inert? #inert #inert)", true);
@@ -56,10 +71,6 @@
         });
 
         Q.test("ignore? works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
             check("(ignore? #ignore)", true);
             check("(ignore? #ignore)", true);
             check("(ignore? #ignore #ignore)", true);
@@ -73,10 +84,6 @@
         });
 
         Q.test("null? works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
             check("(null?)", true);
             check("(null? ())", true);
             check("(null? ())", true);
@@ -90,10 +97,6 @@
         });
 
         Q.test("pair? works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
             check("(pair?)", true);
             check("(pair? ())", false);
             check("(pair? () ())", false);
@@ -109,21 +112,6 @@
         });
 
         Q.test("$if works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
-            function expectError(expr, errorName) {
-                Q.raises(
-                    function () {
-                        Squim.run(expr);
-                    },
-                    function (error) {
-                        return error.name === errorName;
-                    }
-                );
-            }
-
             check("($if #t #t #f)", true);
             check("($if #t #f #t)", false);
             check('($if (eq? 1 1) "son iguales!" "no seran tan iguales")', "son iguales!");
@@ -138,22 +126,7 @@
         });
 
         Q.test("$cond works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
-            function expectError(expr, errorName) {
-                Q.raises(
-                    function () {
-                        Squim.run(expr);
-                    },
-                    function (error) {
-                        return error.name === errorName;
-                    }
-                );
-            }
-
-            Q.equal(Squim.run("($cond)"), Types.inert);
+            check("($cond)", Types.inert, true);
             expectError("($cond (1 2))", Squim.errors.type.BadMatch);
             check("($cond (#t 1))", 1);
             check("($cond (#t 2))", 2);
@@ -167,37 +140,25 @@
             // next condition is not evaluated (it has an error)
             check("($cond (#t 1) (1 2))", 1);
             expectError("($cond (#f 1) (1 2))", Squim.errors.type.BadMatch);
-            Q.equal(Squim.run("($cond (#t))"), Types.inert);
+            check("($cond (#t))", Types.inert, true);
         });
 
 
         Q.test("symbol? works", function () {
-            function check(expr, result) {
-                Q.equal(Squim.run(expr).value, result);
-            }
-
-            // TODO: test this
-            //check("(symbol? foo)", true);
-            //check("(symbol? bar)", true);
-            //check("(symbol? bar foo)", true);
-            //check("(symbol? bar foo foo bar)", true);
+            check("(symbol? (($vau (x) #ignore x) foo))", true);
+            check("(symbol? (($vau (x) #ignore x) foo) (($vau (x) #ignore x) bar))", true);
             check("(symbol? 1)", false);
             check("(symbol? 1.2)", false);
             check('(symbol? "asd")', false);
             check('(symbol? ())', false);
             check('(symbol? (list 1))', false);
-            //check("(symbol? bar foo foo bar 1)", false);
+            check("(symbol? (($vau (x) #ignore x) foo) (($vau (x) #ignore x) bar) 1)", false);
         });
 
         Q.test("eq? works", function () {
             var
                 val = new Types.Pair(new Types.Int(2), Types.nil),
                 env = new Types.Env({"foo": val, "bar": val}, [Types.Env.makeGround()]);
-
-            function check(expr, result) {
-                var actual = Squim.run(expr, env).value;
-                Q.equal(actual, result);
-            }
 
             check("(eq?)", true);
             check("(eq? #t)", true);
@@ -209,19 +170,15 @@
             check('(eq? "asd" "asd")', true);
             check('(eq? (list) (list))', true);
             check('(eq? (list 1) (list 1))', false);
-            check('(eq? foo bar)', true);
-            check('(eq? foo (list 2))', false);
-            check('(eq? foo bar (list 2))', false);
+            check('(eq? foo bar)', true, false, env);
+            check('(eq? foo (list 2))', false, false, env);
+            check('(eq? foo bar (list 2))', false, false, env);
         });
 
         Q.test("equal? works", function () {
             var
                 val = new Types.Pair(new Types.Int(2), Types.nil),
                 env = new Types.Env({"foo": val, "bar": val}, [Types.Env.makeGround()]);
-
-            function check(expr, result) {
-                Q.equal(Squim.run(expr, env).value, result);
-            }
 
             check("(equal?)", true);
             check("(equal? #t)", true);
@@ -233,9 +190,9 @@
             check('(equal? "asd" "asd")', true);
             check('(equal? (list) (list))', true);
             check('(equal? (list 1) (list 1))', true);
-            check('(equal? foo bar)', true);
-            check('(equal? foo (list 2))', true);
-            check('(equal? foo bar (list 2))', true);
+            check('(equal? foo bar)', true, false, env);
+            check('(equal? foo (list 2))', true, false, env);
+            check('(equal? foo bar (list 2))', true, false, env);
         });
 
         Q.test("cons works", function () {
@@ -252,18 +209,6 @@
                 Q.equal(result.right.value, cons);
             }
 
-            function expectError(expr, errorName) {
-                Q.raises(
-                    function () {
-                        Squim.run(expr);
-                    },
-                    function (error) {
-                        return error.name === errorName;
-                    }
-                );
-            }
-
-
             check("(cons 1 2)", 1, 2);
             check("(cons foo bar)", 2, false);
 
@@ -275,18 +220,18 @@
         Q.test("make-environment works", function () {
             var env;
 
-            function check(expr, car, cons) {
+            function checkEnv(expr) {
                 var result = Squim.run(expr);
 
                 Q.ok(result instanceof Types.Env);
                 return result;
             }
 
-            env = check("(make-environment)");
+            env = checkEnv("(make-environment)");
             Q.equal(env.parents.length, 0);
-            Q.ok(Squim.run("(environment? (make-environment))").value);
-            Q.ok(Squim.run("(environment? (get-current-environment))").value);
-            env = check("(make-environment (get-current-environment))");
+            check("(environment? (make-environment))", true);
+            check("(environment? (get-current-environment))", true);
+            env = checkEnv("(make-environment (get-current-environment))");
             Q.equal(env.parents.length, 1);
         });
 
@@ -297,36 +242,31 @@
         });
 
         Q.test("applicative? works", function () {
-            Q.equal(Squim.run('(applicative? list)').value, true);
-            Q.equal(Squim.run('(applicative? ($lambda () 1))').value, true);
+            check('(applicative? list)', true);
+            check('(applicative? ($lambda () 1))', true);
 
-            Q.equal(Squim.run('(applicative? 1)').value, false);
-            Q.equal(Squim.run('(applicative? ($vau () #ignore 1))').value, false);
-            Q.equal(Squim.run('(applicative? (wrap ($vau () #ignore 1)))').value, true);
+            check('(applicative? 1)', false);
+            check('(applicative? ($vau () #ignore 1))', false);
+            check('(applicative? (wrap ($vau () #ignore 1)))', true);
         });
 
-        Q.test("passing something other than #ignore or a symbol as 2nd param fails",
-                function () {
-                    Q.raises(function () {
-                        Squim.run('(applicative? ($vau () 2 1))');
-                    }, function (error) {
-                        return error.name === Squim.errors.type.SymbolExpected;
-                    });
-                });
+        Q.test("passing something other than #ignore or a symbol as 2nd param fails", function () {
+            expectError('(applicative? ($vau () 2 1))', Squim.errors.type.SymbolExpected);
+        });
 
         Q.test("operative? works", function () {
-            Q.equal(Squim.run('(operative? list)').value, false);
-            Q.equal(Squim.run('(operative? ($lambda () 1))').value, false);
+            check('(operative? list)', false);
+            check('(operative? ($lambda () 1))', false);
 
-            Q.equal(Squim.run('(operative? 1)').value, false);
-            Q.equal(Squim.run('(operative? ($vau () #ignore 1))').value, true);
-            Q.equal(Squim.run('(operative? (unwrap (wrap ($vau () #ignore 1))))').value, true);
+            check('(operative? 1)', false);
+            check('(operative? ($vau () #ignore 1))', true);
+            check('(operative? (unwrap (wrap ($vau () #ignore 1))))', true);
         });
 
         Q.test("$sequence works", function () {
-            Q.equal(Squim.run('($sequence)'), Types.inert);
-            Q.equal(Squim.run('($sequence 1)').value, 1);
-            Q.equal(Squim.run('($sequence 0 1)').value, 1);
+            check('($sequence)', Types.inert, true);
+            check('($sequence 1)', 1);
+            check('($sequence 0 1)', 1);
             Q.equal(Squim.run('($sequence (list 1) (list 2))').left.value, 2);
             Q.equal(Squim.run('($sequence ($define! foo 42) (list foo))').left.value, 42);
         });
@@ -336,7 +276,7 @@
                 result,
                 env = new Types.Env({"foo": new Types.Int(4)}, [Types.Env.makeGround()]);
 
-            Q.equal(Squim.run('(applicative? list)').value, true);
+            check('(applicative? list)', true);
             //Q.equal(Squim.run('(operative? (unwrap list))').value, true);
             Q.equal(Squim.run('(list foo)', env).left.value, 4);
 
@@ -378,37 +318,15 @@
         });
 
         Q.test("car works", function () {
-            function expectError(expr, errorName) {
-                Q.raises(
-                    function () {
-                        Squim.run(expr);
-                    },
-                    function (error) {
-                        return error.name === errorName;
-                    }
-                );
-            }
-
-            Q.deepEqual(Squim.run('(car (list 1 2))').value, 1);
-            Q.deepEqual(Squim.run('(car (cons 1 2))').value, 1);
+            check('(car (list 1 2))', 1);
+            check('(car (cons 1 2))', 1);
 
             expectError('(car 1)', Squim.errors.type.ListExpected);
         });
 
         Q.test("cdr works", function () {
-            function expectError(expr, errorName) {
-                Q.raises(
-                    function () {
-                        Squim.run(expr);
-                    },
-                    function (error) {
-                        return error.name === errorName;
-                    }
-                );
-            }
-
             Q.deepEqual(Squim.run('(cdr (list 1 2))').left.value, 2);
-            Q.deepEqual(Squim.run('(cdr (cons 1 2))').value, 2);
+            check('(cdr (cons 1 2))', 2);
 
             expectError('(cdr 1)', Squim.errors.type.ListExpected);
         });
