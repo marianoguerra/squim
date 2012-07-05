@@ -66,6 +66,8 @@
             }
 
             check("(12)", 12);
+            check("(+12)", 12);
+            check("(-12)", -12);
         });
 
         Q.test("parses decimal", function () {
@@ -76,6 +78,8 @@
             }
 
             check("(12.1)", 12.1);
+            check("(+12.1)", 12.1);
+            check("(-12.1)", -12.1);
         });
 
         Q.test("parses boolean", function () {

@@ -7,8 +7,8 @@
 ";".*$                 /* ignore */
 \s+                    /* skip whitespace */
 "."                    return 'DOT'
-[0-9]+"."[0-9]+\b      return 'DECIMAL'
-[0-9]+\b               return 'INTEGER'
+[\-\+]?[0-9]+"."[0-9]+\b  return 'DECIMAL'
+[\-\+]?[0-9]+\b           return 'INTEGER'
 "#t"                   return 'TRUE'
 "#f"                   return 'FALSE'
 "#inert"               return 'INERT'
