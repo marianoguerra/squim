@@ -212,7 +212,7 @@
                 if (!Types.util.isCombiner(combiner)) {
                     return Error.BadMatch("combiner expected", args);
                 }  else {
-                    return combiner.apply(null, [new Pair(cc.parent, Types.nil), cc.parent]);
+                    return combiner.apply(null, [new Pair(cc, Types.nil), cc]);
                 }
             }, cc);
         }
