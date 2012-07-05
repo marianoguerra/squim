@@ -9,6 +9,7 @@
 "."                    return 'DOT'
 [\-\+]?[0-9]+"."[0-9]+\b  return 'DECIMAL'
 [\-\+]?[0-9]+\b           return 'INTEGER'
+[\-\+]?"#"[bodx][0-9a-zA-Z]+\b           return 'BASEINTEGER'
 "#t"                   return 'TRUE'
 "#f"                   return 'FALSE'
 "#inert"               return 'INERT'
@@ -58,6 +59,29 @@ e
         {$$ = new Types.Int(parseInt(yytext, 10));}
     | DECIMAL
     	{$$ = new Types.Float(parseFloat(yytext));}
+    | BASEINTEGER
+      {
+        var str, sign = yytext.charAt(0), baseChar, base;
+
+        if (sign === "+" || sign === "-") {
+          str = yytext.slice(3);
+          baseChar = yytext.charAt(2);
+        } else {
+          sign = "+";
+          str = yytext.slice(2);
+          baseChar = yytext.charAt(1);
+        }
+
+        switch (baseChar) {
+        case 'b': base = 2; break;
+        case 'o': base = 8; break;
+        case 'd': base = 10; break;
+        case 'x': base = 16; break;
+        default: throw "invalid base: " + baseChar;
+        }
+
+        $$ = new Types.Int(parseInt(sign + str, base));
+      }
     | STRING
     	{$$ = new Types.Str(yytext.slice(1, yytext.length - 1));}
     | SYMBOL

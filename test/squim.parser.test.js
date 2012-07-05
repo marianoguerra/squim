@@ -62,12 +62,31 @@
             function check(expr, expectedValue) {
                 var exp = Parser.parse(expr);
 
-                Q.equal(exp.left.value, expectedValue);
+                Q.equal(exp.left.value, expectedValue, "" + expr + " === " + expectedValue);
             }
 
             check("(12)", 12);
+            check("(#d12)", 12);
+            check("(+#d12)", 12);
             check("(+12)", 12);
             check("(-12)", -12);
+            check("(-#d12)", -12);
+
+            check("(#b1)", 1);
+            check("(#b111)", 7);
+            check("(+#b111)", 7);
+            check("(-#b111)", -7);
+
+            check("(#o1)", 1);
+            check("(#o10)", 8);
+            check("(+#o12)", 10);
+            check("(-#o17)", -15);
+
+            check("(#x1)", 1);
+            check("(#x10)", 16);
+            check("(#xff)", 255);
+            check("(+#x12)", 18);
+            check("(-#x17)", -23);
         });
 
         Q.test("parses decimal", function () {
