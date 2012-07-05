@@ -36,3 +36,12 @@ TODO
 * check if copying the formals parameter tree and expr when applying a $vau
 * make native operatives return true on operative? call
 * implement full arg tree binding algorithm as specified in $define!
+* global error continuation
+* continuation? call/cc continuation->applicativeg working correctly
+* number operations more strongly typed
+* 8 encapsulations
+* 9 promises
+* 10 Keyed dynamic variables
+* 11 Keyed static variables
+
+
