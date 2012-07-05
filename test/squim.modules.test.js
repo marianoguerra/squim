@@ -27,7 +27,7 @@
             value = result;
         }
 
-        Q.equal(value, expected);
+        Q.equal(value, expected, "" + expr + ": " + expected.toString());
     }
 
     function expectError(expr, errorName, msg) {
@@ -63,6 +63,46 @@
             check('(boolean? ())', false);
             check('(boolean? (list 1))', false);
             check("(boolean? #f #t #t #f 1)", false);
+        });
+
+        Q.test("integer? works", function () {
+            check("(integer? 1)", true);
+            check("(integer? #x12)", true);
+            check("(integer? 1 2)", true);
+            check("(integer? 1 2 3 4)", true);
+            check("(integer? #f)", false);
+            check("(integer? 1.2)", false);
+            check('(integer? "asd")', false);
+            check('(integer? ())', false);
+            check('(integer? (list 1))', false);
+            check("(integer? 1 2 3 4 #f)", false);
+        });
+
+        Q.test("number? works", function () {
+            check("(number? 1.2)", true);
+            check("(number? 1)", true);
+            check("(number? 1 2)", true);
+            check("(number? 1.2 2)", true);
+            check("(number? 1.2 2.2)", true);
+            check("(number? 1 2 3 4)", true);
+            check("(number? 1.2 2 3 4)", true);
+            check("(number? #f)", false);
+            check('(number? "asd")', false);
+            check('(number? ())', false);
+            check('(number? (list 1))', false);
+            check("(number? 1.2 2 3 4 #f)", false);
+        });
+
+        Q.test("finite? works", function () {
+            check("(finite?)", true);
+            check("(finite? 1)", true);
+            check("(finite? 1 2 3)", true);
+            check("(finite? 1.2)", true);
+            check("(finite? 1.2 3.4)", true);
+
+            expectError('(finite? #f)', Squim.errors.type.BadMatch, "expected numeric arguments");
+            expectError('(finite? 1 #f)', Squim.errors.type.BadMatch, "expected numeric arguments");
+            // TODO: test with infinite
         });
 
         Q.test("inert? works", function () {

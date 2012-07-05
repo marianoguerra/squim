@@ -273,6 +273,23 @@
         };
     }
 
+    obj.k_finite_p = function (args, cc) {
+        return new Cc(args, cc.env, function (eargs) {
+            var result = obj.allOfType(eargs, [Types.Int, Types.Float]);
+
+            if (result.value === true) {
+                // TODO: implement correctly when proper numerical tower is available
+                return cc.resolve(Types.t);
+            } else {
+                return Error.BadMatch("expected numeric arguments", args);
+            }
+        }, cc, true);
+    };
+
+    // TODO: implement correctly when proper numerical tower is available
+    obj.k_integer_p = type_p(Types.Int);
+    obj.k_number_p = type_p([Types.Int, Types.Float]);
+
     obj.k_boolean_p = type_p(Types.Bool);
     obj.k_symbol_p = type_p(Types.Symbol);
     obj.k_inert_p = type_p(Types.Inert);
@@ -384,6 +401,9 @@
                 "applicative?": obj.k_applicative_p,
                 "environment?": obj.k_environment_p,
                 "boolean?": obj.k_boolean_p,
+                "number?": obj.k_number_p,
+                "integer?": obj.k_integer_p,
+                "finite?": obj.k_finite_p,
                 "symbol?": obj.k_symbol_p,
                 "inert?": obj.k_inert_p,
                 "ignore?": obj.k_ignore_p,
