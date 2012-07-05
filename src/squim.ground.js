@@ -194,14 +194,45 @@
 
             cc.env.define(name, evaledValue);
             return cc.resolve(Types.inert);
-        });
+        }, cc);
     };
 
     obj.k_display = function (args, cc) {
         return new Cc(args.left, cc.env, function (value) {
             alert(value.toJs());
             return cc.resolve(Types.inert);
-        });
+        }, cc);
+    };
+
+    obj.k_call_cc = function (args, cc) {
+        if (args === Types.nil || args.right !== Types.nil) {
+            return Error.BadMatch("one argument expected", args);
+        } else {
+            return new Cc(args.left, cc.env, function (combiner) {
+                if (!Types.util.isCombiner(combiner)) {
+                    return Error.BadMatch("combiner expected", args);
+                }  else {
+                    return combiner.apply(null, [new Pair(cc.parent, Types.nil), cc.parent]);
+                }
+            }, cc);
+        }
+    };
+
+    obj.k_continuation__applicative = function (args, cc) {
+        if (args === Types.nil || args.right !== Types.nil) {
+            return Error.BadMatch("one argument expected", args);
+        } else {
+            return new Cc(args.left, cc.env, function (continuation) {
+                if (!Types.util.isContinuation(continuation)) {
+                    return Error.BadMatch("continuation expected", args);
+                } else {
+                    return cc.resolve(function (cargs, _cc) {
+                        // ASK the received _cc isn't used?
+                        return continuation.resolve(cargs);
+                    });
+                }
+            }, cc);
+        }
     };
 
     obj.allOfType = function (items, type) {
@@ -249,6 +280,7 @@
     obj.k_null_p = type_p(Nil);
     obj.k_pair_p = type_p(Pair);
     obj.k_environment_p = type_p(Types.Env);
+    obj.k_continuation_p = type_p(Types.Cc);
     obj.k_operative_p = type_p(Types.Operative);
     obj.k_applicative_p = type_p([Types.Applicative, Function]);
 
@@ -347,6 +379,7 @@
                 "$define!": obj.k_define,
                 "display": obj.k_display,
 
+                "continuation?": obj.k_continuation_p,
                 "operative?": obj.k_operative_p,
                 "applicative?": obj.k_applicative_p,
                 "environment?": obj.k_environment_p,
@@ -374,7 +407,9 @@
                 "$sequence": obj.k_sequence,
                 "car": obj.k_car,
                 "cdr": obj.k_cdr,
-                "apply": obj.k_apply
+                "apply": obj.k_apply,
+                "call/cc": obj.k_call_cc,
+                "continuation->applicative": obj.k_continuation__applicative
             }, [], false);
 
 

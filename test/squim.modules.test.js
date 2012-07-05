@@ -30,13 +30,21 @@
         Q.equal(value, expected);
     }
 
-    function expectError(expr, errorName) {
+    function expectError(expr, errorName, msg) {
         Q.raises(
             function () {
                 Squim.run(expr);
             },
             function (error) {
-                return error.name === errorName;
+                var msgMatches;
+
+                if (msg !== undefined && error.args) {
+                    msgMatches = (msg === error.args.msg);
+                } else {
+                    msgMatches = true;
+                }
+
+                return error.name === errorName && msgMatches;
             }
         );
     }
@@ -253,6 +261,22 @@
         Q.test("passing something other than #ignore or a symbol as 2nd param fails", function () {
             expectError('(applicative? ($vau () 2 1))', Squim.errors.type.SymbolExpected);
         });
+
+        /*Q.test("call/cc, continuation? works", function () {
+            expectError('(call/cc)', Squim.errors.type.BadMatch, "one argument expected");
+            expectError('(call/cc 1 2)', Squim.errors.type.BadMatch, "one argument expected");
+            expectError('(call/cc 1)', Squim.errors.type.BadMatch, "combiner expected");
+
+            expectError('(continuation->applicative)', Squim.errors.type.BadMatch, "one argument expected");
+            expectError('(continuation->applicative 1 2)', Squim.errors.type.BadMatch, "one argument expected");
+            expectError('(continuation->applicative 1)', Squim.errors.type.BadMatch, "continuation expected");
+
+            check('(continuation? (call/cc ($lambda (cont) cont)))', true);
+            check('(continuation? (call/cc ($lambda (cont) 1)))', false);
+            check('(applicative? (continuation->applicative (call/cc ($lambda (cont) cont))))', true);
+            check('(call/cc ($lambda (cont) ((continuation->applicative cont) (continuation? cont))))', true);
+            check('(call/cc ($lambda (cont) ((continuation->applicative cont) (continuation? 1))))', false);
+        });*/
 
         Q.test("operative? works", function () {
             check('(operative? list)', false);

@@ -532,16 +532,28 @@
         return result;
     };
 
-    obj.util.isApplicative = function (obj) {
-        return obj instanceof Applicative || obj instanceof Function;
+    obj.util.isApplicative = function (object) {
+        return object instanceof Applicative || object instanceof Function;
     };
 
-    obj.util.isEnvironment = function (obj) {
-        return obj instanceof Env;
+    obj.util.isOperative = function (object) {
+        return object instanceof Operative;
     };
 
-    obj.util.isListOrNil = function (obj) {
-        return obj instanceof Pair || obj instanceof Pair.Nil;
+    obj.util.isCombiner = function (object) {
+        return obj.util.isApplicative(object) || obj.util.isOperative(object);
+    };
+
+    obj.util.isEnvironment = function (object) {
+        return object instanceof Env;
+    };
+
+    obj.util.isContinuation = function (object) {
+        return object instanceof Cc;
+    };
+
+    obj.util.isListOrNil = function (object) {
+        return object instanceof Pair || object instanceof Pair.Nil;
     };
 
     obj.Type = Type;
