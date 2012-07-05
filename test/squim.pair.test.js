@@ -62,7 +62,7 @@
 
             cc = new Types.Cc(pair, env, function (result) {
                 Q.deepEqual(result.toString(), "(1 2)");
-            }, true);
+            }, null, true);
 
             while (cc) {
                 cc = cc.eval_();

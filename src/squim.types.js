@@ -43,10 +43,11 @@
     Type.prototype._expand = Type.prototype.eval_;
     Type.prototype.equal_p = Type.prototype.eq_p;
 
-    function Cc(value, env, cont, expand) {
+    function Cc(value, env, cont, parent, expand) {
         Type.apply(this, [value]);
         this.env = env;
         this.cont = cont;
+        this.parent = parent;
         this.expand = expand;
     }
 
@@ -259,8 +260,8 @@
                 return new Cc(pair.right, cc.env,
                     function (right) {
                         return cc.resolve(new Pair(left, right));
-                    }, true);
-            });
+                    }, cc, true);
+            }, cc);
     };
 
     Pair.Nil = function () { };
@@ -366,7 +367,7 @@
 
         return new Cc(args, dynamicEnv, function (expandedArgs) {
                 return appl.operative.apply(thisArg, [expandedArgs, cc]);
-            }, true);
+            }, cc, true);
     };
 
     // TODO: eq_p and equal_p for Applicative
@@ -418,7 +419,7 @@
 
         return new Cc(this.expr, localEnv, function (result) {
             return cc.resolve(result);
-        });
+        }, cc);
     };
 
     // TODO: eq_p and equal_p for Operative
@@ -429,7 +430,7 @@
         var pair = this;
         return new Cc(pair.left, cc.env, function (left) {
             return left.apply(null, [pair.right, cc]);
-        });
+        }, cc);
     };
 
     obj.util.gatherArguments = function (items, names, exactNumber, defaults) {

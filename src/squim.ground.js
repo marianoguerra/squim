@@ -65,7 +65,7 @@
             }
 
             return cc.resolve(new Types.Applicative(parts.operative));
-        }, true);
+        }, cc, true);
     };
 
     obj.k_apply = function (args, cc) {
@@ -93,7 +93,7 @@
             cc.env = applyEnv;
 
             return parts.applicative.apply(null, [parts.object, cc]);
-        }, true);
+        }, cc, true);
     };
 
     obj.k_car = function (args, cc) {
@@ -105,7 +105,7 @@
             }
 
             return cc.resolve(parts.pair.left);
-        }, true);
+        }, cc, true);
     };
 
     obj.k_cdr = function (args, cc) {
@@ -117,13 +117,13 @@
             }
 
             return cc.resolve(parts.pair.right);
-        }, true);
+        }, cc, true);
     };
 
     obj.k_list = function (args, cc) {
         return new Cc(args, cc.env, function (eargs) {
             return cc.resolve(eargs);
-        }, true);
+        }, cc, true);
     };
 
     obj.k_unwrap = function (args, cc) {
@@ -135,7 +135,7 @@
             }
 
             return cc.resolve(parts.applicative.operative);
-        }, true);
+        }, cc, true);
     };
 
     function evalSequenceLeft(remaining, cc) {
@@ -149,7 +149,7 @@
             } else {
                 return evalSequenceLeft(remaining.right, cc);
             }
-        })).eval_();
+        }, cc)).eval_();
     }
 
     obj.k_sequence = function (args, cc) {
@@ -171,7 +171,7 @@
             });
 
             return cc.resolve(new Types.Env({}, parents));
-        }, true);
+        }, cc, true);
     };
 
     obj.k_get_current_environment = function (args, cc) {
@@ -185,7 +185,7 @@
             expectEnvironment(parts.environment, args, cc.env);
 
             return new Cc(parts.expression, parts.environment, cc.cont);
-        }, true);
+        }, cc, true);
     };
 
     obj.k_define = function (args, cc) {
@@ -238,7 +238,7 @@
         return function (args, cc) {
             return new Cc(args, cc.env, function (eargs) {
                 cc.resolve(obj.allOfType(eargs, type));
-            }, true);
+            }, cc, true);
         };
     }
 
@@ -275,13 +275,13 @@
     obj.k_eq_p = function (args, cc) {
         return new Cc(args, cc.env, function (eargs) {
             return cc.resolve(obj.compareAllToFirst(eargs, "eq_p"));
-        }, true);
+        }, cc, true);
     };
 
     obj.k_equal_p = function (args, cc) {
         return new Cc(args, cc.env, function (eargs) {
             return cc.resolve(obj.compareAllToFirst(eargs, "equal_p"));
-        }, true);
+        }, cc, true);
     };
 
     obj.k_if = function (args, cc) {
@@ -290,14 +290,14 @@
         return new Cc(parts.condition, cc.env, function (condResult) {
             if (condResult instanceof Types.Bool) {
                 if (condResult.value === true) {
-                    return new Cc(parts.thenBlock, cc.env, cc.cont);
+                    return new Cc(parts.thenBlock, cc.env, cc.cont, cc);
                 } else {
-                    return new Cc(parts.elseBlock, cc.env, cc.cont);
+                    return new Cc(parts.elseBlock, cc.env, cc.cont, cc);
                 }
             } else {
                 return Error.BooleanExpected(condResult, {args: args, env: cc.env});
             }
-        });
+        }, cc);
     };
 
     obj.k_cond = function (args, cc) {
@@ -324,7 +324,7 @@
                         return obj.k_cond(args.right, cc);
                     }
 
-                });
+                }, cc);
             }
         }
     };
@@ -337,7 +337,7 @@
                 cdr = parts.cdr;
 
             return cc.resolve(new Pair(car, cdr));
-        }, true);
+        }, cc, true);
     };
 
     obj.makeGround = function () {
