@@ -582,12 +582,54 @@
         return bindings;
     };
 
+    obj.squimify = function (item) {
+        var type = typeof item, value;
+
+        if (item instanceof obj.Type) {
+            return item;
+        } else if (type === "boolean") {
+            return (item) ? obj.t : obj.f;
+        } else if (type === "string") {
+            return new obj.Str(item);
+        } else if (type === "number" && (item % 1) === 0) {
+            return new obj.Int(item);
+        } else if (type === "number") {
+            return new obj.Float(item);
+        } else if (Util.isArray(item)) {
+            if (item.length === 0) {
+                return obj.nil;
+            } else {
+                return obj.util.arrayToPair(item);
+            }
+        } else if (item instanceof RegExp) {
+            value = item.source;
+
+            if (value.charAt(0) === '#') {
+                if (value === "#ignore") {
+                    return obj.ignore;
+                } else if (value === "#inert") {
+                    return obj.inert;
+                } else {
+                    throw "unknown symbol: " + value;
+                }
+            } else {
+                return new obj.Symbol(value);
+            }
+        } else if (item === null) {
+            return obj.nil;
+        } else {
+            throw "unknown type for item: " + item;
+        }
+    };
+
     obj.util.arrayToPair = function (items) {
         if (items.length === 0) {
             return Pair.nil;
         }
 
-        return new Pair(items[0], obj.util.arrayToPair(items.slice(1)));
+        var first = obj.squimify(items[0]);
+
+        return new Pair(first, obj.util.arrayToPair(items.slice(1)));
     };
 
     obj.util.pairToArray = function (pair, checkItem) {
