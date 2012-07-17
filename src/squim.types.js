@@ -285,10 +285,13 @@
 
     Pair.prototype = new Type(null);
 
-    Pair.prototype.toJs = function () {
-        var result = [this.left.toJs()];
+    Pair.prototype.toJs = function (shallow) {
+        var
+            left = (shallow) ? this.left : this.left.toJs(),
+            right = (shallow) ? this.right : this.right.toJs(),
+            result = [left];
 
-        return result.concat(this.right.toJs());
+        return result.concat(right);
     };
 
     Pair.prototype.toString = function () {
