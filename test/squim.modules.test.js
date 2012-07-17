@@ -302,21 +302,24 @@
             expectError('(applicative? ($vau () 2 1))', Squim.errors.type.SymbolExpected);
         });
 
-        /*Q.test("call/cc, continuation? works", function () {
-            expectError('(call/cc)', Squim.errors.type.BadMatch, "one argument expected");
+        Q.test("call/cc, continuation? works", function () {
+            /*expectError('(call/cc)', Squim.errors.type.BadMatch, "one argument expected");
             expectError('(call/cc 1 2)', Squim.errors.type.BadMatch, "one argument expected");
             expectError('(call/cc 1)', Squim.errors.type.BadMatch, "combiner expected");
 
             expectError('(continuation->applicative)', Squim.errors.type.BadMatch, "one argument expected");
             expectError('(continuation->applicative 1 2)', Squim.errors.type.BadMatch, "one argument expected");
-            expectError('(continuation->applicative 1)', Squim.errors.type.BadMatch, "continuation expected");
+            expectError('(continuation->applicative 1)', Squim.errors.type.BadMatch, "continuation expected");*/
 
-            check('(continuation? (call/cc ($lambda (cont) cont)))', true);
-            check('(continuation? (call/cc ($lambda (cont) 1)))', false);
-            check('(applicative? (continuation->applicative (call/cc ($lambda (cont) cont))))', true);
-            check('(call/cc ($lambda (cont) ((continuation->applicative cont) (continuation? cont))))', true);
-            check('(call/cc ($lambda (cont) ((continuation->applicative cont) (continuation? 1))))', false);
-        });*/
+            //check('(call/cc ($lambda (cont) 1))', 1);
+            //check('(=? 1 (call/cc ($lambda (cont) (continuation->applicative cont) 1)))', true);
+            //check('(=? 2 (call/cc ($lambda (cont) (continuation->applicative cont) 1)))', false);
+            //check('(continuation? (call/cc ($lambda (cont) 1)))', false);
+            //check('(continuation? (call/cc ($lambda (cont) cont)))', true);
+            /*(check('(applicative? (continuation->applicative (call/cc ($lambda (cont) cont))))', true);
+            check('(call/cc ($lambda (cont) (continuation->applicative cont) (continuation? cont)))', true);
+            check('(call/cc ($lambda (cont) (continuation->applicative cont) (continuation? 1)))', false);*/
+        });
 
         Q.test("operative? works", function () {
             check('(operative? list)', false);
