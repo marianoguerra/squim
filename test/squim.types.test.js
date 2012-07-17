@@ -69,7 +69,7 @@
             function check(env, expected) {
                 (new Types.Cc(symbol, env, function (result) {
                     Q.equal(result, expected);
-                })).eval_();
+                })).run();
             }
 
             check(new Types.Env({foo: 4}), 4);

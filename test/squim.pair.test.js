@@ -65,7 +65,7 @@
             }, null, true);
 
             while (cc) {
-                cc = cc.eval_();
+                cc = cc.run();
             }
         });
 
@@ -85,7 +85,7 @@
             });
 
             while (cc) {
-                cc = cc.eval_();
+                cc = cc.run();
             }
         });
     };

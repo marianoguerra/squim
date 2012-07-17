@@ -66,6 +66,10 @@
     Cc.prototype.equal_p = Cc.prototype.eq_p;
 
     Cc.prototype.eval_ = function () {
+        return this;
+    };
+
+    Cc.prototype.run = function () {
         if (this.expand) {
             return this.value._expand(this);
         } else {

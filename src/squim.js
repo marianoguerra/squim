@@ -29,7 +29,7 @@
 
     obj.trampoline = function (cc) {
         while (cc) {
-            cc = cc.eval_();
+            cc = cc.run();
         }
     };
 
