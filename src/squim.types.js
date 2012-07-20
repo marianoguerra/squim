@@ -540,7 +540,7 @@
             }
         }
 
-        return new Env(bindings, parent);
+        return new Env(squimBindings, parents);
     };
 
 

@@ -127,6 +127,14 @@
             Q.equal(Squim.run('(equal? (obj inexistent) #inert)', env), Types.t, "calling obj with unknown symbol returns inert");
         });
 
+        Q.test("Env.fromJsObject", function () {
+            var env = Types.Env.fromJsObject({"obj": "asd"}, [42]);
+
+            Q.equal(env.bindings.obj instanceof Types.Str, true);
+            Q.equal(env.bindings.obj.value, "asd");
+            Q.equal(env.parents[0], 42);
+        });
+
         Q.test("squimify", function () {
             function check(value, expected) {
                 Q.equal(Types.squimify(value).toString(), expected);
