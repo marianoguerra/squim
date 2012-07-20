@@ -19,7 +19,14 @@
     var obj = {}, Types = Squim.types;
 
     function check(expr, expected, compareAsIs, env) {
-        var result = Squim.run(expr, env), value;
+        var result, value;
+
+        try {
+            result = Squim.run(expr, env);
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
 
         if (!compareAsIs) {
             value = result.value;
