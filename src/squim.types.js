@@ -361,6 +361,69 @@
 
     Pair.nil = new Pair.Nil();
 
+    function Obj(attrs) {
+        this.attrs = attrs;
+    }
+
+    Obj.prototype = new Type(null);
+
+    Obj.prototype.eq_p = function (obj) {
+        return this === obj;
+    };
+
+    Obj.prototype.equal_p = Obj.prototype.eq_p;
+
+    Obj.prototype.toJs = function () {
+        var attr, val, key, attrs = {};
+
+        for (key in this.attrs) {
+            attr = this.attrs[key];
+
+            if (attr instanceof Pair) {
+                val = attr.toJs();
+            } else if (attr instanceof Pair.Nil) {
+                val = [];
+            } else if (attr instanceof Obj) {
+                val = attr.toJs();
+            } else {
+                val = attr.value;
+            }
+
+            attrs[key] = val;
+        }
+
+        return attrs;
+    };
+
+    Obj.prototype.toString = function () {
+        var key, attr, attrs = {};
+
+        for (key in this.attrs) {
+            attr = this.attrs[key];
+            if (attr instanceof Str) {
+                attrs[key] = attr.value;
+            } else {
+                attrs[key] = attr.toJs();
+            }
+        }
+
+        return JSON.stringify(attrs);
+    };
+
+    // convert js object *obj* to a Obj
+    // return a new Obj with *attrs* as own attrs
+    Obj.fromJsObject = function (attrs) {
+        var key, squimattrs = {};
+
+        for (key in attrs) {
+            if (attrs.hasOwnProperty(key)) {
+                squimattrs[key] = obj.squimify(attrs[key]);
+            }
+        }
+
+        return new Obj(squimattrs);
+    };
+
     function Env(bindings, parents, inmutable) {
 
         if (bindings === undefined) {
@@ -644,6 +707,8 @@
             }
         } else if (item === null) {
             return obj.nil;
+        } else if (item instanceof Object) {
+            return Obj.fromJsObject(item);
         } else {
             throw "unknown type for item: " + item;
         }
@@ -707,6 +772,7 @@
 
     obj.Type = Type;
 
+    obj.Obj = Obj;
     obj.Str = Str;
     obj.Int = Int;
     obj.Bool = Bool;

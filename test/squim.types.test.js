@@ -38,6 +38,7 @@
             check(new Types.Ignore());
             check(new Types.Str("asd"));
             check(new Types.Env());
+            check(new Types.Obj({}));
             check(new Types.Cc());
         });
 
@@ -83,6 +84,30 @@
             Q.equal(bound.right, Types.nil);
         });
 
+        Q.test("Obj", function () {
+            var jsobj = {name: "mariano", age: 27, tags: ["foo", "bar"], foo: {bar: 1, baz: "asd"}},
+                obj = Types.Obj.fromJsObject(jsobj);
+
+            Q.equal(obj.attrs.name.value, jsobj.name);
+            Q.equal(obj.attrs.age.value, jsobj.age);
+            Q.equal(obj.attrs.tags.left.value, "foo");
+            Q.equal(obj.attrs.tags.right.left.value, "bar");
+            Q.equal(obj.attrs.foo.attrs.bar.value, jsobj.foo.bar);
+            Q.equal(obj.attrs.foo.attrs.baz.value, jsobj.foo.baz);
+
+            Q.ok(obj.attrs.name instanceof Types.Str);
+            Q.ok(obj.attrs.age instanceof Types.Int);
+            Q.ok(obj.attrs.tags instanceof Types.Pair);
+            Q.ok(obj.attrs.tags.left instanceof Types.Str);
+            Q.ok(obj.attrs.tags.right.left instanceof Types.Str);
+            Q.ok(obj.attrs.foo instanceof Types.Obj);
+            Q.ok(obj.attrs.foo.attrs.bar instanceof Types.Int);
+            Q.ok(obj.attrs.foo.attrs.baz instanceof Types.Str);
+
+            Q.deepEqual(obj.toJs(), jsobj);
+
+        });
+
         Q.test("squimify", function () {
             function check(value, expected) {
                 Q.equal(Types.squimify(value).toString(), expected);
@@ -106,6 +131,9 @@
             check([1, 1.2, false, true], "(1 1.2 #f #t)");
             check([1, 1.2, false, true, "asd"], '(1 1.2 #f #t "asd")');
             check([1, 1.2, [false, true, "asd"], []], '(1 1.2 (#f #t "asd") ())');
+            check({name: "mariano"}, '{"name":"mariano"}');
+            // this assumes attrs will be serialized in the same order
+            check({name: "mariano", age: 27}, '{"name":"mariano","age":27}');
 
             check(new Types.Int(1), "1");
             check(new Types.Float(1.2), "1.2");
