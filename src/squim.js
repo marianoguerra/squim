@@ -40,7 +40,11 @@
             env = new obj.types.Env({}, [obj.types.Env.makeGround()]);
         }
 
-        exp = obj.parse(code);
+        if (typeof code === "string") {
+            exp = obj.parse(code);
+        } else {
+            exp = code;
+        }
 
         function onResult(value) {
             result = value;
