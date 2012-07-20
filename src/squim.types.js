@@ -543,7 +543,7 @@
         }
 
         if (Util.isArray(names)) {
-            iparams = params = obj.util.arrayToPair(names);
+            iparams = params = obj.util.arrayToPair(names, true);
         } else if (names instanceof Symbol) {
             // NOTE if names is a symbol then bind all args to that symbol
             // and return
@@ -645,14 +645,19 @@
         }
     };
 
-    obj.util.arrayToPair = function (items) {
+    obj.util.arrayToPair = function (items, shallow) {
         if (items.length === 0) {
             return Pair.nil;
         }
 
-        var first = obj.squimify(items[0]);
+        var first;
+        if (shallow) {
+            first = items[0];
+        } else {
+            first = obj.squimify(items[0]);
+        }
 
-        return new Pair(first, obj.util.arrayToPair(items.slice(1)));
+        return new Pair(first, obj.util.arrayToPair(items.slice(1), shallow));
     };
 
     obj.util.pairToArray = function (pair, checkItem) {
