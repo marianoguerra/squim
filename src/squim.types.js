@@ -406,18 +406,41 @@
 
     Env.prototype.equal_p = Env.prototype.eq_p;
 
-    Env.prototype.toJs = function () {
-        var i, parents = [];
+    // if shallow is true then don't convert parents toJs
+    Env.prototype.toJs = function (shallow) {
+        var i, parents = [], key, bindings = {};
 
-        for (i = 0; i < this.parents.length; i += 1) {
-            parents.push(this.parents[i].toJs());
+        for (key in this.bindings) {
+            bindings[key] = this.bindings[key].toJs();
+        }
+
+        if (!shallow) {
+            for (i = 0; i < this.parents.length; i += 1) {
+                parents.push(this.parents[i].toJs());
+            }
         }
 
         return {
-            "bindings": this.bindings,
+            "bindings": bindings,
             "parents": parents
         };
     };
+
+    // convert js object *bindings* to a js object that contains all it's
+    // attributes as squim objects to be used as a bindings object for an environment
+    // return a new Env with *bindings* as bindings of the environment
+    Env.fromJsObject = function (bindings, parents) {
+        var key, squimBindings = {};
+
+        for (key in bindings) {
+            if (bindings.hasOwnProperty(key)) {
+                squimBindings[key] = obj.squimify(bindings[key]);
+            }
+        }
+
+        return new Env(bindings, parent);
+    };
+
 
     function Applicative(operative) {
         this.operative = operative;
