@@ -96,6 +96,10 @@
         return this.value;
     };
 
+    Symbol.prototype.toJs = function () {
+        return "/" + this.value + "/";
+    };
+
     Symbol.prototype.eval_ = function (cc) {
         var result = cc.env.get(this.value);
 
@@ -138,7 +142,7 @@
     };
 
     Str.prototype.toJs = function () {
-        return JSON.stringify(this.value);
+        return this.value;
     };
 
     Str.prototype.eq_p = function (obj) {

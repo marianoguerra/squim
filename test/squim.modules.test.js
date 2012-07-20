@@ -432,7 +432,7 @@
 
         Q.test("$vau works", function () {
             var result = Squim.run('(($vau (a) #ignore ($define! one 1) ($define! two 2) (list one two a)) foo)');
-            Q.deepEqual(result.toJs(), [1, 2, 'foo']);
+            Q.deepEqual(result.toJs(), [1, 2, '/foo/']);
 
             result = Squim.run('((wrap ($vau x #ignore x)) 1 2 3)');
             Q.deepEqual(result.toJs(), [1, 2, 3]);

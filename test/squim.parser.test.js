@@ -134,13 +134,13 @@
                 Q.deepEqual(exp.toJs(), expectedValue);
             }
 
-            check("(+ 1 2)", ["+", 1, 2]);
-            check("(+ 1 2.3)", ["+", 1, 2.3]);
+            check("(+ 1 2)", ["/+/", 1, 2]);
+            check("(+ 1 2.3)", ["/+/", 1, 2.3]);
             check('(display 1 2.3 () "asd" foo)',
-                  ["display", 1, 2.3, [], "\"asd\"", "foo"]);
+                  ["/display/", 1, 2.3, [], "asd", "/foo/"]);
 
             check('(display 1 2.3 (/ 2 3) "asd" foo)',
-                  ["display", 1, 2.3, ["/", 2, 3], "\"asd\"", "foo"]);
+                  ["/display/", 1, 2.3, ["///", 2, 3], "asd", "/foo/"]);
         });
 
         Q.test("representation is the same as the parsed input", function () {
