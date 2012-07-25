@@ -19,6 +19,8 @@
 [A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+     return 'SYMBOL'
 "("                    return '('
 ")"                    return ')'
+"{"                    return '{'
+"}"                    return '}'
 <<EOF>>                return 'EOF'
 .                      return 'INVALID'
 
@@ -39,6 +41,18 @@ listItems: e
         { $$ = new Types.Pair($1, $2); }                                              
     ;  
 
+objPairs: SYMBOL e
+	{ 
+		$$ = {};
+		$$[$1] = $2;
+	}
+    | SYMBOL e objPairs
+	{ 
+		$3[$1] = $2;
+		$$ = $3;
+	}
+    ;
+
 e
     : '(' ')'
         {$$ = Types.nil;}
@@ -56,6 +70,10 @@ e
         }
     | '(' listItems ')'
         {$$ = $2;}
+    | '{' '}'
+    	{$$ = new Types.Obj();}
+    | '{' objPairs '}'
+    	{$$ = new Types.Obj($2);}
     | INTEGER
         {$$ = new Types.Int(parseInt(yytext, 10));}
     | DECIMAL

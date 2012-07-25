@@ -127,6 +127,30 @@
             //check('("a\\"s\\"d")', 'a"s"d');
         });
 
+        Q.test("parses objects", function () {
+            function check(expr, expected) {
+                var exp = Parser.parse(expr), key, value;
+                Q.ok(exp instanceof Types.Obj);
+
+                for (key in expected) {
+                    value = expected[key];
+                    console.log(exp, exp.attrs);
+                    Q.deepEqual(exp.attrs[key].value, value);
+                }
+            }
+
+            check("{}", {});
+            check("{a 1}", {a: 1});
+            check("{a 1 b #f}", {a: 1, b: false});
+            check('{a 1 b #f c "hello"}', {a: 1, b: false, c: "hello"});
+
+            try {
+                Parser.parse("{a}");
+                Q.ok(false, "expected the test to fail");
+            } catch (error) {
+            }
+        });
+
         Q.test("parses simple expressions", function () {
             function check(expr, expectedValue) {
                 var exp = Parser.parse(expr);

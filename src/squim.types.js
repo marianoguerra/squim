@@ -379,6 +379,10 @@
     Pair.nil = new Pair.Nil();
 
     function Obj(attrs) {
+        if (attrs === undefined || attrs === null) {
+            attrs = {};
+        }
+
         this.attrs = attrs;
     }
 
