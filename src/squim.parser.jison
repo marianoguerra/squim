@@ -16,11 +16,12 @@
 "#inert"               return 'INERT'
 "#ignore"              return 'IGNORE'
 "\"".*?"\""            return 'STRING'
-[A-Za-z0-9!\$%&\*\+\-\./:<=>\?@\^\_~]+     return 'SYMBOL'
+[A-Za-z0-9!\$%&\*\+\-/<=>\?@\^\_~]+     return 'SYMBOL'
 "("                    return '('
 ")"                    return ')'
 "{"                    return '{'
 "}"                    return '}'
+":"                    return ':'
 <<EOF>>                return 'EOF'
 .                      return 'INVALID'
 
@@ -53,8 +54,15 @@ objPairs: SYMBOL e
 	}
     ;
 
-e
-    : '(' ')'
+obj :
+      '{' '}'
+    	{$$ = new Types.Obj();}
+    | '{' objPairs '}'
+    	{$$ = new Types.Obj($2);}
+    ;
+
+list :
+    '(' ')'
         {$$ = Types.nil;}
     | '(' listItems DOT e ')'
         {
@@ -70,10 +78,12 @@ e
         }
     | '(' listItems ')'
         {$$ = $2;}
-    | '{' '}'
-    	{$$ = new Types.Obj();}
-    | '{' objPairs '}'
-    	{$$ = new Types.Obj($2);}
+    ;
+
+
+literal :
+      list
+    | obj
     | INTEGER
         {$$ = new Types.Int(parseInt(yytext, 10));}
     | DECIMAL
@@ -113,6 +123,12 @@ e
         {$$ = Types.inert;}
     | IGNORE
         {$$ = Types.ignore;}
+    ;
+
+e :
+      literal ':' obj
+    	{ $1.meta = $3.attrs; return $1; }
+    | literal
     ;
 
 

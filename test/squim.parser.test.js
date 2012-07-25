@@ -53,7 +53,7 @@
             }
 
             check("(foo)", "foo");
-            check("(foo.bar:baz/argh)", "foo.bar:baz/argh");
+            check("(foo-bar!baz/argh)", "foo-bar!baz/argh");
             check("($set!)", "$set!");
             check("($long-dashed-name-42!)", "$long-dashed-name-42!");
         });
@@ -134,7 +134,6 @@
 
                 for (key in expected) {
                     value = expected[key];
-                    console.log(exp, exp.attrs);
                     Q.deepEqual(exp.attrs[key].value, value);
                 }
             }
@@ -143,6 +142,29 @@
             check("{a 1}", {a: 1});
             check("{a 1 b #f}", {a: 1, b: false});
             check('{a 1 b #f c "hello"}', {a: 1, b: false, c: "hello"});
+
+            try {
+                Parser.parse("{a}");
+                Q.ok(false, "expected the test to fail");
+            } catch (error) {
+            }
+        });
+
+        Q.test("attaches metadata to objects", function () {
+            function check(expr, expected) {
+                var exp = Parser.parse(expr), key, value;
+                console.log(exp, exp.meta);
+
+                for (key in expected) {
+                    value = expected[key];
+                    Q.deepEqual(exp.meta[key].value, value);
+                }
+            }
+
+            check("1 : {}", {});
+            check("foo : {a 1}", {a: 1});
+            check('"lala" : {a 1 b #f}', {a: 1, b: false});
+            check('(foo) : {a 1 b #f c "hello"}', {a: 1, b: false, c: "hello"});
 
             try {
                 Parser.parse("{a}");
