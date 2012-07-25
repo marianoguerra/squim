@@ -22,6 +22,7 @@
 
     function Type(value) {
         this.value = value;
+        this.meta = null;
     }
 
     Type.prototype.toString = function () {
@@ -38,6 +39,22 @@
 
     Type.prototype.eq_p = function (obj) {
         return this.value === obj.value;
+    };
+
+    Type.prototype.setMetaData = function (key, value) {
+        if (this.meta === null) {
+            this.meta = {};
+        }
+
+        this.meta[key] = value;
+    };
+
+    Type.prototype.getMetaData = function (key, defval) {
+        if (this.meta === null) {
+            return defval;
+        } else {
+            return this.meta[key];
+        }
     };
 
     Type.prototype._expand = Type.prototype.eval_;

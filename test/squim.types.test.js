@@ -84,6 +84,34 @@
             Q.equal(bound.right, Types.nil);
         });
 
+        Q.test("metadata can be attached to types", function () {
+            var
+                num = new Types.Int(4),
+                str = new Types.Str("asd"),
+                sym = new Types.Symbol("foo"),
+                pair = new Types.Pair(num, Types.nil);
+
+            function check(obj, attrs) {
+                var key;
+
+                for (key in attrs) {
+                    obj.setMetaData(key, attrs[key]);
+                }
+
+                for (key in attrs) {
+                    Q.deepEqual(obj.getMetaData(key), attrs[key]);
+                }
+            }
+
+            Q.equal(num.getMetaData("foo"), undefined);
+            Q.equal(str.getMetaData("foo", 4), 4);
+
+            check(num, {"a": 1});
+            check(str, {"a": 1, "b": false});
+            check(sym, {"a": 1, "b": false, "string": "yes, I'm a string"});
+            check(pair, {"a": 1, "b": false, "string": "yes, I'm a string", "d": [1, 2, 3]});
+        });
+
         Q.test("Obj", function () {
             var jsobj = {name: "mariano", age: 27, tags: ["foo", "bar"], foo: {bar: 1, baz: "asd"}},
                 obj = Types.Obj.fromJsObject(jsobj);
