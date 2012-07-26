@@ -83,7 +83,7 @@ case 20:this.$ = Types.inert;
 break;
 case 21:this.$ = Types.ignore;
 break;
-case 22: $$[$0-2].meta = $$[$0].attrs; return $$[$0-2]; 
+case 22: $$[$0-2].meta = $$[$0].attrs; 
 break;
 }
 },

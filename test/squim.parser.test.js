@@ -151,9 +151,10 @@
         });
 
         Q.test("attaches metadata to objects", function () {
+            var ast;
+
             function check(expr, expected) {
                 var exp = Parser.parse(expr), key, value;
-                console.log(exp, exp.meta);
 
                 for (key in expected) {
                     value = expected[key];
@@ -171,6 +172,14 @@
                 Q.ok(false, "expected the test to fail");
             } catch (error) {
             }
+
+            ast = Parser.parse('(set color "#c00" :{format "color"})');
+            console.log(ast);
+            Q.ok(ast instanceof Types.Pair);
+            Q.equal(ast.left.value, "set");
+            Q.equal(ast.right.left.value, "color");
+            Q.equal(ast.right.right.left.value, "#c00");
+            Q.equal(ast.right.right.left.meta.format.value, "color");
         });
 
         Q.test("parses simple expressions", function () {

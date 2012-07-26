@@ -127,7 +127,7 @@ literal :
 
 e :
       literal ':' obj
-    	{ $1.meta = $3.attrs; return $1; }
+    	{ $1.meta = $3.attrs; }
     | literal
     ;
 
