@@ -229,6 +229,16 @@
             check('(+ 1 2 (- 3 4) (* 5 6 7 (/ 8 9 10.2)))');
             check('(+ 1 foo (- 3.5 4234) (* "asd" 6 () (/ 8 9 10.2)))');
 
+            check("1 :{}");
+            check("1 :{max 10}");
+            check("1 :{can-be-zero #t}");
+            check("1 :{valid-values (1 2 3 4)}");
+            check('1 :{hint "bla"}');
+            check('asd :{hint "bla"}');
+            check('"asd" :{hint "bla"}');
+            check('1.2 :{hint "bla"}');
+            check('{foo "bar"} :{hint "bla"}');
+            check("(1) :{max-len 4}");
         });
 
         Q.test("ignores comments", function () {

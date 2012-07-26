@@ -26,7 +26,31 @@
     }
 
     Type.prototype.toString = function () {
-        return JSON.stringify(this.value);
+        return JSON.stringify(this.value) + this.metaToString();
+    };
+
+    Type.prototype.metaToString = function () {
+        var parts, key, value, valueStr;
+
+        if (this.meta === null) {
+            return "";
+        } else {
+            parts = [];
+
+            for (key in this.meta) {
+                value = this.meta[key];
+
+                if (value instanceof Type) {
+                    valueStr = value.toString();
+                } else {
+                    valueStr = JSON.stringify(value);
+                }
+
+                parts.push(key + " " + valueStr);
+            }
+
+            return " :{" + parts.join(" ") + "}";
+        }
     };
 
     Type.prototype.toJs = function () {
@@ -110,7 +134,7 @@
     Symbol.prototype = new Type(null);
 
     Symbol.prototype.toString = function () {
-        return this.value;
+        return this.value + this.metaToString();
     };
 
     Symbol.prototype.toJs = function () {
@@ -336,7 +360,7 @@
         }
 
         parts.push(")");
-        return parts.join("");
+        return parts.join("") + this.metaToString();
     };
 
     Pair.prototype.eq_p = function (obj) {
@@ -417,19 +441,17 @@
     };
 
     Obj.prototype.toString = function () {
-        var key, attr, attrs = {};
+        var parts = [], item = this, key, value;
 
         for (key in this.attrs) {
-            attr = this.attrs[key];
-            if (attr instanceof Str) {
-                attrs[key] = attr.value;
-            } else {
-                attrs[key] = attr.toJs();
-            }
+            value = this.attrs[key];
+
+            parts.push(key + " " + value.toString());
         }
 
-        return JSON.stringify(attrs);
+        return "{" + parts.join(" ") + "}" + this.metaToString();
     };
+
 
     // convert js object *obj* to a Obj
     // return a new Obj with *attrs* as own attrs
