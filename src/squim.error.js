@@ -40,7 +40,7 @@
         EnvironmentExpected: "EnvironmentExpected",
         BadMatch: "BadMatch",
         MutationError: "MutationError",
-        ValueError: "ValueError",
+        ValueError: "ValueError"
     };
 
     obj.UnboundSymbol = function (name, ctx) {
