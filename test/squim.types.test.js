@@ -165,7 +165,11 @@
 
         Q.test("squimify", function () {
             function check(value, expected) {
-                Q.equal(Types.squimify(value).toString(), expected);
+                var
+                    result = Types.squimify(value),
+                    actual = result.toString();
+
+                Q.equal(actual, expected, actual + " should be " + expected);
             }
 
             check(1, "1");
@@ -177,6 +181,7 @@
             check(null, "()");
             check([], "()");
             check(/foo/, "foo");
+            check(/foo.bar.baz/, '(foo bar baz) :{hint "objattrs"}');
             check(/$foo!/, "$foo!");
             check('', '""');
             check('foo', '"foo"');

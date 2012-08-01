@@ -16,7 +16,8 @@
     }
 }(this, function (JSON, Error, Util) {
     "use strict";
-    var obj = {};
+    var obj = {},
+        strObjAttrsHint;
 
     obj.util = {};
 
@@ -751,7 +752,7 @@
     };
 
     obj.squimify = function (item) {
-        var type = typeof item, value;
+        var type = typeof item, value, i, symbols, squimSyms, result;
 
         if (item instanceof obj.Type) {
             return item;
@@ -780,6 +781,18 @@
                 } else {
                     throw "unknown symbol: " + value;
                 }
+            } else if (value.indexOf(".") !== -1) {
+                symbols = value.split(".");
+                squimSyms = [];
+
+                for (i = 0; i < symbols.length; i += 1) {
+                    squimSyms.push(new obj.Symbol(symbols[i]));
+                }
+
+                result = obj.util.arrayToPair(squimSyms, true);
+                result.setMetaData("hint", strObjAttrsHint);
+
+                return result;
             } else {
                 return new obj.Symbol(value);
             }
@@ -870,6 +883,8 @@
     obj.ignore = Ignore.ignore;
     obj.t = new Bool(true);
     obj.f = new Bool(false);
+
+    strObjAttrsHint = new obj.Str("objattrs");
 
     return obj;
 
