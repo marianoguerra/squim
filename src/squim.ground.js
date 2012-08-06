@@ -1,4 +1,4 @@
-/*global define SquimError SquimTypes SquimUtil SquimParser*/
+/*global define SquimError SquimTypes SquimUtil SquimParser alert*/
 (function (root, factory) {
     "use strict";
 
