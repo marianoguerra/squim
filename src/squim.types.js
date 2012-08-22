@@ -408,10 +408,32 @@
             attrs = {};
         }
 
+        this._firstEval = true;
         this.attrs = attrs;
     }
 
     Obj.prototype = new Type(null);
+
+    function resolveAttr(key, attrs, cc) {
+        (new Cc(attrs[key], cc.env, function (value) {
+            attrs[key] = value;
+        }, cc)).run();
+    }
+
+    Obj.prototype.eval_ = function (cc) {
+        var key, values;
+
+        if (this._firstEval) {
+            values = [];
+            this._firstEval = false;
+
+            for (key in this.attrs) {
+                resolveAttr(key, this.attrs, cc);
+            }
+        }
+
+        return cc.resolve(this);
+    };
 
     Obj.prototype.eq_p = function (obj) {
         return this === obj;
@@ -497,7 +519,7 @@
             }
         } else {
             return Error.BadMatch(
-                "expected symbl in argument list",
+                "expected symbol in argument list",
                 {args: args, got: args.left});
         }
     };
