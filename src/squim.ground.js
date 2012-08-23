@@ -143,13 +143,13 @@
             return cc.cont(Types.inert);
         }
 
-        return (new Cc(remaining.left, cc.env, function (result) {
+        return new Cc(remaining.left, cc.env, function (result) {
             if (remaining.right === Types.nil) {
                 return cc.resolve(result);
             } else {
                 return evalSequenceLeft(remaining.right, cc);
             }
-        }, cc)).eval_();
+        }, cc);
     }
 
     obj.k_sequence = function (args, cc) {
