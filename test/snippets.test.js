@@ -68,6 +68,23 @@
             Q.equal(values.color.value, "#cc3");
             Q.equal(values.groupName.value, "g1");
         });
+
+        Q.test("function call as object attr value gets evaluated", function () {
+            var result, values, code = '($sequence ($define! headers (list "first" {label "second" childs (list "2.1" "2.2" third {label "inner" childs (list "3.1" fourth)})})))';
+
+            result = runCode(code, {"third": "2.3", "fourth": "3.2"});
+
+            values = result.bindings;
+
+            Q.equal(values.headers.left.value, "first");
+            Q.equal(values.headers.right.left.attrs.label.value, "second");
+            Q.equal(values.headers.right.left.attrs.childs.left.value, "2.1");
+            Q.equal(values.headers.right.left.attrs.childs.right.left.value, "2.2");
+            Q.equal(values.headers.right.left.attrs.childs.right.right.left.value, "2.3");
+            Q.equal(values.headers.right.left.attrs.childs.right.right.right.left.attrs.label.value, "inner");
+            Q.equal(values.headers.right.left.attrs.childs.right.right.right.left.attrs.childs.left.value, "3.1");
+            Q.equal(values.headers.right.left.attrs.childs.right.right.right.left.attrs.childs.right.left.value, "3.2");
+        });
     };
 
     return obj;

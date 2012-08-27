@@ -27,11 +27,7 @@
         return Parser.parse.apply(Parser, arguments);
     };
 
-    obj.trampoline = function (cc) {
-        while (cc) {
-            cc = cc.run();
-        }
-    };
+    obj.trampoline = Types.trampoline;
 
     obj.run = function (code, env, callback) {
         var exp, result = null;
@@ -46,18 +42,7 @@
             exp = code;
         }
 
-        function onResult(value) {
-            result = value;
-        }
-
-        if (callback) {
-            obj.trampoline(new Types.Cc(exp, env, callback));
-
-        } else {
-            obj.trampoline(new Types.Cc(exp, env, onResult));
-
-            return result;
-        }
+        return Types.run(exp, env, callback);
     };
 
     return obj;

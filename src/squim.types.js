@@ -430,9 +430,7 @@
     Obj.prototype = new Type(null);
 
     function resolveAttr(key, attrs, cc) {
-        (new Cc(attrs[key], cc.env, function (value) {
-            attrs[key] = value;
-        }, cc)).run();
+        attrs[key] = obj.run(attrs[key], cc.env);
     }
 
     Obj.prototype.eval_ = function (cc) {
@@ -898,6 +896,29 @@
 
     obj.util.isListOrNil = function (object) {
         return object instanceof Pair || object instanceof Pair.Nil;
+    };
+
+    obj.trampoline = function (cc) {
+        while (cc) {
+            cc = cc.run();
+        }
+    };
+
+    obj.run = function (exp, env, callback) {
+        var result;
+
+        function onResult(value) {
+            result = value;
+        }
+
+        if (callback) {
+            obj.trampoline(new obj.Cc(exp, env, callback));
+
+        } else {
+            obj.trampoline(new obj.Cc(exp, env, onResult));
+
+            return result;
+        }
     };
 
     obj.Type = Type;
