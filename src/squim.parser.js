@@ -44,6 +44,10 @@ case 9:
 break;
 case 10:this.$ = $$[$0-1];
 break;
+case 11:this.$ = $$[$0];
+break;
+case 12:this.$ = $$[$0];
+break;
 case 13:this.$ = new Types.Int(parseInt(yytext, 10));
 break;
 case 14:this.$ = new Types.Float(parseFloat(yytext));

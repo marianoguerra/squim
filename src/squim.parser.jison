@@ -83,7 +83,9 @@ list :
 
 literal :
       list
+      {$$ = $1;}
     | obj
+      {$$ = $1;}
     | INTEGER
         {$$ = new Types.Int(parseInt(yytext, 10));}
     | DECIMAL
