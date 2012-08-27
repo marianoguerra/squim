@@ -190,7 +190,7 @@
             check([1, 1.2, false], "(1 1.2 #f)");
             check([1, 1.2, false, true], "(1 1.2 #f #t)");
             check([1, 1.2, false, true, "asd"], '(1 1.2 #f #t "asd")');
-            check([1, 1.2, [false, true, "asd"], []], '(1 1.2 (#f #t "asd") ())');
+            check([1, 1.2, [false, true, "asd"], []], '(1 1.2 \n  (#f #t "asd") ())');
             check({name: "mariano"}, '{name "mariano"}');
             // this assumes attrs will be serialized in the same order
             check({name: "mariano", age: 27}, '{name "mariano" age 27}');

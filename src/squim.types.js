@@ -17,20 +17,33 @@
 }(this, function (JSON, Error, Util) {
     "use strict";
     var obj = {},
+        indentCache = {},
         strObjAttrsHint;
 
     obj.util = {};
+
+    function makeIndent(count) {
+        if (count === undefined || count === 0) {
+            return "";
+        }
+
+        if (indentCache[count] === undefined) {
+            indentCache[count] = "\n" + (new Array(count + 1).join("  "));
+        }
+
+        return indentCache[count];
+    }
 
     function Type(value) {
         this.value = value;
         this.meta = null;
     }
 
-    Type.prototype.toString = function () {
-        return JSON.stringify(this.value) + this.metaToString();
+    Type.prototype.toString = function (level) {
+        return makeIndent(level) + JSON.stringify(this.value) + this.metaToString();
     };
 
-    Type.prototype.metaToString = function () {
+    Type.prototype.metaToString = function (level) {
         var parts, key, value, valueStr;
 
         if (this.meta === null) {
@@ -95,8 +108,8 @@
 
     Cc.prototype = new Type(null);
 
-    Cc.prototype.toString = function () {
-        return "#[continuation]";
+    Cc.prototype.toString = function (level) {
+        return makeIndent(level) + "#[continuation]";
     };
 
     Cc.prototype.toJs = Cc.prototype.toString;
@@ -130,8 +143,8 @@
 
     Symbol.prototype = new Type(null);
 
-    Symbol.prototype.toString = function () {
-        return this.value + this.metaToString();
+    Symbol.prototype.toString = function (level) {
+        return makeIndent(level) + this.value + this.metaToString();
     };
 
     Symbol.prototype.toJs = function () {
@@ -260,8 +273,8 @@
 
     Bool.prototype = new Type(null);
 
-    Bool.prototype.toString = function () {
-        return (this.value) ? "#t" : "#f";
+    Bool.prototype.toString = function (level) {
+        return makeIndent(level) + ((this.value) ? "#t" : "#f");
     };
 
     function Float(value) {
@@ -336,12 +349,18 @@
         return result.concat(right);
     };
 
-    Pair.prototype.toString = function () {
-        var parts = [], item = this;
+    Pair.prototype.toString = function (level) {
+        var parts = [], item = this, childLevel;
         parts.push("(");
 
         while (item !== Pair.nil) {
-            parts.push(item.left.toString());
+            if (item.left instanceof Pair) {
+                childLevel = (level || 0) + 1;
+            } else {
+                childLevel = 0;
+            }
+
+            parts.push(item.left.toString(childLevel));
 
             if (item.right !== Pair.nil) {
                 parts.push(" ");
@@ -357,7 +376,7 @@
         }
 
         parts.push(")");
-        return parts.join("") + this.metaToString();
+        return makeIndent(level) + parts.join("") + this.metaToString();
     };
 
     Pair.prototype.eq_p = function (obj) {
@@ -385,8 +404,8 @@
 
     Pair.Nil.prototype = new Type(null);
 
-    Pair.Nil.prototype.toString = function () {
-        return "()";
+    Pair.Nil.prototype.toString = function (level) {
+        return makeIndent(level) + "()";
     };
 
     Pair.Nil.prototype.toJs = function () {
@@ -459,7 +478,7 @@
         return attrs;
     };
 
-    Obj.prototype.toString = function () {
+    Obj.prototype.toString = function (level) {
         var parts = [], item = this, key, value;
 
         for (key in this.attrs) {
@@ -468,7 +487,7 @@
             parts.push(key + " " + value.toString());
         }
 
-        return "{" + parts.join(" ") + "}" + this.metaToString();
+        return makeIndent(level) + "{" + parts.join(" ") + "}" + this.metaToString();
     };
 
 
@@ -616,8 +635,9 @@
         return ['$lambda', this.operative.formals.toJs(), this.operative.expr.toJs()];
     };
 
-    Applicative.prototype.toString = function () {
-        return "($lambda " + this.operative.formals.toString() + " " + this.operative.expr.toString() + ")";
+    Applicative.prototype.toString = function (level) {
+        level = level || 0;
+        return makeIndent(level) + "($lambda " + this.operative.formals.toString() + " " + this.operative.expr.toString(level + 1) + ")";
     };
 
     Applicative.prototype.apply = function (thisArg, funargs) {
@@ -653,8 +673,9 @@
         return ['$vau', this.formals.toJs(), this.eformal.toJs(), this.expr.toJs()];
     };
 
-    Operative.prototype.toString = function () {
-        return "($vau" + this.formals.toString() + " " + this.eformal.toString() + " " + this.expr.toString() + ")";
+    Operative.prototype.toString = function (level) {
+        level = level || 0;
+        return makeIndent(level) + "($vau" + this.formals.toString() + " " + this.eformal.toString() + " " + this.expr.toString(level + 1) + ")";
     };
 
     Operative.prototype.apply = function (thisArg, funargs) {

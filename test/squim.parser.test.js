@@ -272,15 +272,15 @@
             check("(1 . 2)");
             check("(1 2 . 3)");
             check("(1 2 3 4 5 6 7 . 8)");
-            check("((1 . 2) . (3 . (4 5)))", "((1 . 2) 3 4 5)");
-            check("((1 . 2) . (3 . (4 . 5)))", "((1 . 2) 3 4 . 5)");
+            check("((1 . 2) . (3 . (4 5)))", "(\n  (1 . 2) 3 4 5)");
+            check("((1 . 2) . (3 . (4 . 5)))", "(\n  (1 . 2) 3 4 . 5)");
             check('"hi"');
             check('map');
             check('(+ 1 2)');
             check('(+ 1 2 3 4 5 6)');
-            check('(+ 1 2 (- 3 4) (* 5 6))');
-            check('(+ 1 2 (- 3 4) (* 5 6 7 (/ 8 9 10.2)))');
-            check('(+ 1 foo (- 3.5 4234) (* "asd" 6 () (/ 8 9 10.2)))');
+            check('(+ 1 2 \n  (- 3 4) \n  (* 5 6))');
+            check('(+ 1 2 \n  (- 3 4) \n  (* 5 6 7 \n    (/ 8 9 10.2)))');
+            check('(+ 1 foo \n  (- 3.5 4234) \n  (* "asd" 6 () \n    (/ 8 9 10.2)))');
 
             check("1 :{}");
             check("1 :{max 10}");
@@ -295,11 +295,11 @@
         });
 
         Q.test("ignores comments", function () {
-            function check(expr) {
+            function check(expr, expected) {
                 var cleanExpr = expr.replace(/ *;.*/, "").replace("\n", ""),
                     reconstructed = Parser.parse(expr).toString();
 
-                Q.equal(cleanExpr, reconstructed, "'" + expr + "' '" + cleanExpr + "' '" + reconstructed + "'");
+                Q.equal(expected || cleanExpr, reconstructed, "'" + expr + "' '" + cleanExpr + "' '" + reconstructed + "'");
             }
 
             check("1 ; a number");
@@ -312,9 +312,9 @@
             check('(+ 1 2) ; adition');
             check('(+ 1 2) ; adition\n');
             check('(+ 1 2 3 4 5 6)                 ;');
-            check('(+ 1 2 (- 3 4) (* 5 6))       ;               asd');
-            check('(+ 1 2 (- 3 4) (* 5 6 7 (/ 8 9 10.2))) ; (+ 1 2)');
-            check('(+ 1 foo (- 3.5 4234) (* "asd" 6 () (/ 8 9 10.2))) ; 12');
+            check('(+ 1 2 (- 3 4) (* 5 6)) ;               asd', '(+ 1 2 \n  (- 3 4) \n  (* 5 6))');
+            check('(+ 1 2 (- 3 4) (* 5 6 7 (/ 8 9 10.2))) ; (+ 1 2)', '(+ 1 2 \n  (- 3 4) \n  (* 5 6 7 \n    (/ 8 9 10.2)))');
+            check('(+ 1 foo (- 3.5 4234) (* "asd" 6 () (/ 8 9 10.2))) ; 12', '(+ 1 foo \n  (- 3.5 4234) \n  (* "asd" 6 () \n    (/ 8 9 10.2)))');
 
         });
     };
