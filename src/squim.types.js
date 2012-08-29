@@ -969,6 +969,21 @@
         return object instanceof Pair || object instanceof Pair.Nil;
     };
 
+    obj.util.withParams = function (args, cc, names, exactNumber, types, callback, errorCallback) {
+        return new Cc(args, cc.env, function (eargs) {
+            var result = obj.util.matchList(eargs, names, true, types);
+
+            if (result.ok) {
+                return callback(result.val);
+            } else if (errorCallback) {
+                return errorCallback(result);
+            } else {
+                // TODO: other error handling
+                throw result;
+            }
+        }, cc, true);
+    };
+
     obj.util.matchList = function (list, names, exactNumber, types) {
         var
             name,
