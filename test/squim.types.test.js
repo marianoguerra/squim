@@ -230,6 +230,93 @@
             check(Types.t, "#t");
             check(Types.f, "#f");
         });
+
+        Q.test("match list", function () {
+            var env = Types.Env.makeGround(), result;
+
+            function validate(listStr, names, exactNumber, types) {
+                var list = Squim.run("(list " + listStr + ")", env),
+                    items = Types.util.matchList(list, names, exactNumber, types);
+
+                return items;
+            }
+
+            function check(listStr, names, exactNumber, types, values) {
+                var
+                    i, name, item, value,
+                    items = validate(listStr, names, exactNumber, types),
+                    myTypes = types || [];
+
+                Q.ok(items.ok, "result shoudt be ok");
+                values = values || [];
+
+                if (names === undefined) {
+                    return;
+                }
+
+                for (i = 0; i < names.length; i += 1) {
+                    name = names[i];
+                    item = items.val[name];
+                    value = values[i];
+
+                    Q.ok(item, "result should have value " + name);
+
+                    if (value !== undefined) {
+                        Q.equal(item.value, value, "" + item.value + " == " + value);
+                    }
+                }
+            }
+
+            check("");
+            check("", []);
+            check("1", ["num"], true);
+            check("1", ["num"], true, undefined, [1]);
+            check("1", ["num"], true, [Types.Int], [1]);
+
+            check("1 2", ["num"], false);
+            check("1 2", ["num"], false, undefined, [1]);
+            check("1 2", ["num"], false, [Types.Int], [1]);
+
+            result = validate("1 2", ["num"], true);
+            Q.equal(result.ok, false, "should fail validation");
+            Q.equal(result.sizeMismatch, true, "should fail because of size mismatch");
+            Q.equal(result.listSize, 2, "should provide list size");
+            Q.equal(result.namesSize, 1, "should provide names size");
+            Q.equal(result.reason, "expected exactly 1 items\n");
+
+            result = validate("1", ["num", "name"], true);
+            Q.equal(result.ok, false, "should fail validation");
+            Q.equal(result.sizeMismatch, true, "should fail because of size mismatch");
+            Q.equal(result.listSize, 1, "should provide list size");
+            Q.equal(result.namesSize, 2, "should provide names size");
+            Q.equal(result.reason, "expected exactly 2 items\n");
+
+            result = validate("1", ["num", "name"], false);
+            Q.equal(result.ok, false, "should fail validation");
+            Q.equal(result.sizeMismatch, true, "should fail because of size mismatch");
+            Q.equal(result.listSize, 1, "should provide list size");
+            Q.equal(result.namesSize, 2, "should provide names size");
+            Q.equal(result.reason, "expected at least 2 items\n");
+
+            result = validate("1", ["num"], true, [Types.Str]);
+            Q.equal(result.ok, false, "should fail validation");
+            Q.equal(result.typeErrors.num, Types.Str);
+            Q.equal(result.reason, "expected 'num' to be of type #[str], got 1\n");
+
+            result = validate('1 "asd"', ["num", "name"], true, [Types.Str, Types.Str]);
+            Q.equal(result.ok, false, "should fail validation");
+            Q.equal(result.typeErrors.num, Types.Str);
+            Q.equal(result.reason, "expected 'num' to be of type #[str], got 1\n");
+
+            check('1 "asd"', ["num", "name"], true, [Types.Int, Types.Str], [1, "asd"]);
+            check('1 "asd" #t', ["num", "name", "yes?"], true, [Types.Int, Types.Str, Types.Bool], [1, "asd", true]);
+            check('1 "asd" #t 1.2', ["num", "name", "yes?", "avg"], true, [Types.Int, Types.Str, Types.Bool, Types.Float], [1, "asd", true, 1.2]);
+
+            result = validate('1 "asd" #t 1.2', ["num", "name", "yes?", "avg"], true, [Types.Int, Types.Str, Types.Bool, Types.Int], [1, "asd", true, 1.2]);
+            Q.equal(result.ok, false, "should fail validation");
+            Q.equal(result.typeErrors.avg, Types.Int);
+            Q.equal(result.reason, "expected 'avg' to be of type #[int], got 1.2\n");
+        });
     };
 
     return obj;

@@ -774,6 +774,17 @@
         }, cc);
     };
 
+    Pair.prototype.forEach = function (callback) {
+        var i = 0, pair = this;
+
+        while (pair !== Pair.nil) {
+            callback(pair.left, i);
+
+            pair = pair.right;
+            i += 1;
+        }
+    };
+
     obj.util.gatherArguments = function (items, names, exactNumber, defaults) {
         var param, paramName, arg, argValue, args, iargs, params, iparams, bindings = {};
 
@@ -956,6 +967,84 @@
 
     obj.util.isListOrNil = function (object) {
         return object instanceof Pair || object instanceof Pair.Nil;
+    };
+
+    obj.util.matchList = function (list, names, exactNumber, types) {
+        var
+            name,
+            type,
+            result,
+            typeErrors,
+            ok = true,
+            listSize = 0,
+            reason = "",
+            sizeMismatch = false;
+
+        // if it's nil but there are no names
+        if (list instanceof Pair.Nil && (names === undefined || names.length === 0)) {
+            return {
+                ok: true,
+                reason: reason,
+                val: {}
+            };
+        } else if (list instanceof Pair) {
+            result = {};
+            typeErrors = {};
+
+            types = types || [];
+            names = names || [];
+
+            list.forEach(function (item, index) {
+                listSize += 1;
+                name = names[index];
+                type = types[index];
+
+                if (name === undefined) {
+                    if (exactNumber) {
+                        ok = false;
+                    }
+                } else {
+                    result[name] = item;
+
+                    if (type !== undefined) {
+                        if (!(item instanceof type)) {
+                            ok = false;
+                            reason += "expected '" + name + "' to be of type " + type + ", got " + item + "\n";
+                            typeErrors[name] = type;
+                        }
+                    }
+                }
+            });
+
+            if (exactNumber && listSize !== names.length) {
+                ok = false;
+                sizeMismatch = true;
+                reason += "expected exactly " + names.length + " items\n";
+            }
+
+            if (!exactNumber && listSize < names.length) {
+                ok = false;
+                sizeMismatch = true;
+                reason += "expected at least " + names.length + " items\n";
+            }
+
+            return {
+                ok: ok,
+                val: result,
+                reason: reason,
+                listSize: listSize,
+                namesSize: names.length,
+                sizeMismatch: sizeMismatch,
+                typeErrors: typeErrors
+            };
+
+        } else {
+            return {
+                ok: false,
+                reason: reason,
+                val: {}
+            };
+        }
     };
 
     obj.trampoline = function (cc) {
