@@ -43,6 +43,10 @@
         return makeIndent(level) + JSON.stringify(this.value) + this.metaToString();
     };
 
+    Type.toString = function () {
+        return "#[type]";
+    };
+
     Type.prototype.metaToString = function (level) {
         var parts, key, value, valueStr;
 
@@ -106,6 +110,10 @@
         this.expand = expand;
     }
 
+    Cc.toString = function () {
+        return "#[cc]";
+    };
+
     Cc.prototype = new Type(null);
 
     Cc.prototype.toString = function (level) {
@@ -140,6 +148,10 @@
     function Symbol(value) {
         Type.apply(this, [value]);
     }
+
+    Symbol.toString = function () {
+        return "#[symbol]";
+    };
 
     Symbol.prototype = new Type(null);
 
@@ -178,6 +190,10 @@
         Type.apply(this, [value]);
     }
 
+    Str.toString = function () {
+        return "#[str]";
+    };
+
     Str.prototype = new Type(null);
 
     Str.prototype.getOp = function (op) {
@@ -210,6 +226,10 @@
     function Int(value) {
         Type.apply(this, [value]);
     }
+
+    Int.toString = function () {
+        return "#[int]";
+    };
 
     Int.prototype = new Type(null);
 
@@ -271,6 +291,10 @@
         Type.apply(this, [value]);
     }
 
+    Bool.toString = function () {
+        return "#[bool]";
+    };
+
     Bool.prototype = new Type(null);
 
     Bool.prototype.toString = function (level) {
@@ -281,11 +305,19 @@
         Type.apply(this, [value]);
     }
 
+    Float.toString = function () {
+        return "#[float]";
+    };
+
     Float.prototype = new Type(null);
 
     Float.prototype.getOp = Int.prototype.getOp;
 
     function Inert() { }
+
+    Inert.toString = function () {
+        return "#[inert]";
+    };
 
     Inert.prototype = new Type(null);
 
@@ -310,6 +342,10 @@
     };
 
     function Ignore() { }
+
+    Ignore.toString = function () {
+        return "#[ignore]";
+    };
 
     Ignore.prototype = new Type(null);
 
@@ -337,6 +373,10 @@
         this.left = left;
         this.right = right;
     }
+
+    Pair.toString = function () {
+        return "#[pair]";
+    };
 
     Pair.prototype = new Type(null);
 
@@ -402,6 +442,10 @@
 
     Pair.Nil = function () { };
 
+    Pair.Nil.toString = function () {
+        return "#[nil]";
+    };
+
     Pair.Nil.prototype = new Type(null);
 
     Pair.Nil.prototype.toString = function (level) {
@@ -426,6 +470,10 @@
         this._firstEval = true;
         this.attrs = attrs;
     }
+
+    Obj.toString = function () {
+        return "#[obj]";
+    };
 
     Obj.prototype = new Type(null);
 
@@ -553,6 +601,10 @@
         this.inmutable = (inmutable === true);
     }
 
+    Env.toString = function () {
+        return "#[env]";
+    };
+
     Env.prototype = new Type(null);
 
     Env.prototype.define = function (name, value) {
@@ -627,6 +679,10 @@
         this.operative = operative;
     }
 
+    Applicative.toString = function () {
+        return "#[applicative]";
+    };
+
     Applicative.prototype = new Type(null);
 
     Applicative.prototype.toJs = function (env) {
@@ -664,6 +720,10 @@
             });
         }
     }
+
+    Operative.toString = function () {
+        return "#[operative]";
+    };
 
     Operative.prototype = new Type(null);
 

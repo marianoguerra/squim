@@ -64,6 +64,28 @@
             check("a34kTMNs");
         });
 
+        Q.test("types have toString method", function () {
+            function check(type, expected) {
+                Q.equal(type.toString(), expected);
+            }
+
+            Q.equal(Types.Type, "#[type]");
+            Q.equal(Types.Int, "#[int]");
+            Q.equal(Types.Float, "#[float]");
+            Q.equal(Types.Cc, "#[cc]");
+            Q.equal(Types.Symbol, "#[symbol]");
+            Q.equal(Types.Str, "#[str]");
+            Q.equal(Types.Bool, "#[bool]");
+            Q.equal(Types.Inert, "#[inert]");
+            Q.equal(Types.Ignore, "#[ignore]");
+            Q.equal(Types.Pair, "#[pair]");
+            Q.equal(Types.Pair.Nil, "#[nil]");
+            Q.equal(Types.Obj, "#[obj]");
+            Q.equal(Types.Env, "#[env]");
+            Q.equal(Types.Applicative, "#[applicative]");
+            Q.equal(Types.Operative, "#[operative]");
+        });
+
         Q.test("evaling a symbol on an env returns the binding", function () {
             var symbol = new Symbol("foo");
 
