@@ -60,7 +60,10 @@
         Q.raises(
             function () {
                 Squim.run(expr);
-            }, handler
+            }, function (error) {
+                handler(error);
+                return true;
+            }
         );
     }
 
@@ -275,9 +278,20 @@
             check("(cons 1 2)", 1, 2);
             check("(cons foo bar)", 2, false);
 
-            expectError('(cons)', Squim.errors.type.BadMatch);
-            expectError('(cons 1)', Squim.errors.type.BadMatch);
-            expectError('(cons 1 2 3)', Squim.errors.type.BadMatch);
+            expectWithParamsError('(cons)', function (error) {
+                Q.ok(!error.ok, "(cons) should cause an error");
+                Q.equal(error.reason, "expected at least 2 items, got nil\n", "the reason should be the correct one");
+            });
+
+            expectWithParamsError('(cons 1)', function (error) {
+                Q.ok(!error.ok, "(cons 1) should cause an error");
+                Q.equal(error.reason, "expected exactly 2 items\n");
+            });
+
+            expectWithParamsError('(cons 1 2 3)', function (error) {
+                Q.ok(!error.ok, "(cons 1 2 3) should cause an error");
+                Q.equal(error.reason, "expected exactly 2 items\n");
+            });
         });
 
         Q.test("make-environment works", function () {
@@ -421,13 +435,11 @@
             expectWithParamsError('(car 1)', function (error) {
                 Q.ok(!error.ok);
                 Q.equal(error.reason, "expected 'pair' to be of type #[pair], got 1\n");
-                return true;
             });
 
             expectWithParamsError('(car)', function (error) {
                 Q.ok(!error.ok);
                 Q.equal(error.reason, "expected at least 1 items, got nil\n");
-                return true;
             });
         });
 
@@ -438,13 +450,11 @@
             expectWithParamsError('(cdr 1)', function (error) {
                 Q.ok(!error.ok);
                 Q.equal(error.reason, "expected 'pair' to be of type #[pair], got 1\n");
-                return true;
             });
 
             expectWithParamsError('(cdr)', function (error) {
                 Q.ok(!error.ok);
                 Q.equal(error.reason, "expected at least 1 items, got nil\n");
-                return true;
             });
         });
 

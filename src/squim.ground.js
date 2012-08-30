@@ -357,14 +357,9 @@
     };
 
     obj.k_cons = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            var
-                parts = Types.util.gatherArguments(eargs, ["car", "cdr"], true),
-                car = parts.car,
-                cdr = parts.cdr;
-
-            return cc.resolve(new Pair(car, cdr));
-        }, cc, true);
+        return withParams(args, cc, ["car", "cdr"], true, undefined, function (eargs) {
+            return cc.resolve(new Pair(eargs.car, eargs.cdr));
+        });
     };
 
     function applyOp(op, callargs, min, defaultForZeroArgs) {
