@@ -347,6 +347,10 @@
             check('(operative? (unwrap (wrap ($vau () #ignore 1))))', true);
         });
 
+        Q.test("unwrap works", function () {
+            check('(operative? (unwrap (wrap ($vau () #ignore 1))))', true);
+        });
+
         Q.test("$sequence works", function () {
             check('($sequence)', Types.inert, true);
             check('($sequence 1)', 1);

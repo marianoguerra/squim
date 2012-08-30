@@ -99,13 +99,13 @@
     };
 
     obj.k_car = function (args, cc) {
-        return withParams(args, cc, ["pair"], true, [Types.Pair], function (eargs) {
+        return withParams(args, cc, ["pair"], true, [T.Pair], function (eargs) {
             return cc.resolve(eargs.pair.left);
         });
     };
 
     obj.k_cdr = function (args, cc) {
-        return withParams(args, cc, ["pair"], true, [Types.Pair], function (eargs) {
+        return withParams(args, cc, ["pair"], true, [T.Pair], function (eargs) {
             return cc.resolve(eargs.pair.right);
         });
     };
@@ -117,15 +117,9 @@
     };
 
     obj.k_unwrap = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            var parts = Types.util.gatherArguments(eargs, ["applicative"], true);
-
-            if (!Types.util.isApplicative(parts.applicative)) {
-                return Error.BadMatch("expected applicative", {arg: parts.applicative});
-            }
-
-            return cc.resolve(parts.applicative.operative);
-        }, cc, true);
+        return withParams(args, cc, ["applicative"], true, [T.Applicative], function (eargs) {
+            return cc.resolve(eargs.applicative.operative);
+        });
     };
 
     function evalSequenceLeft(remaining, cc) {
