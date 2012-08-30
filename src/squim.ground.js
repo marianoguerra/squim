@@ -23,6 +23,8 @@
         nil = Pair.nil,
         Nil = Pair.Nil,
         Symbol = Types.Symbol,
+        T = Types,
+        withParams = T.util.withParams,
         // (formals eformals . expr)
         vauNames = new Pair(new Symbol("formals"), new Pair(new Symbol("eformal"), new Symbol("expr")));
 
@@ -97,15 +99,9 @@
     };
 
     obj.k_car = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            var parts = Types.util.gatherArguments(eargs, ["pair"], true);
-
-            if (!(parts.pair instanceof Types.Pair)) {
-                return Error.ListExpected(parts.pair, {args: args, env: cc.env});
-            }
-
-            return cc.resolve(parts.pair.left);
-        }, cc, true);
+        return withParams(args, cc, ["pair"], true, [Types.Pair], function (eargs) {
+            return cc.resolve(eargs.pair.left);
+        });
     };
 
     obj.k_cdr = function (args, cc) {

@@ -1002,6 +1002,12 @@
                 reason: reason,
                 val: {}
             };
+        } else if (list instanceof Pair.Nil && names && names.length > 0) {
+            return {
+                ok: false,
+                reason: "expected at least " + names.length + " items, got nil\n",
+                val: {}
+            };
         } else if (list instanceof Pair) {
             result = {};
             typeErrors = {};

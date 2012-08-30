@@ -24,7 +24,7 @@
         try {
             result = Squim.run(expr, env);
         } catch (error) {
-            console.log(error);
+            Q.log(error);
             throw error;
         }
 
@@ -53,6 +53,14 @@
 
                 return error.name === errorName && msgMatches;
             }
+        );
+    }
+
+    function expectWithParamsError(expr, handler) {
+        Q.raises(
+            function () {
+                Squim.run(expr);
+            }, handler
         );
     }
 
@@ -397,7 +405,17 @@
             check('(car (list 1 2))', 1);
             check('(car (cons 1 2))', 1);
 
-            expectError('(car 1)', Squim.errors.type.ListExpected);
+            expectWithParamsError('(car 1)', function (error) {
+                Q.ok(!error.ok);
+                Q.equal(error.reason, "expected 'pair' to be of type #[pair], got 1\n");
+                return true;
+            });
+
+            expectWithParamsError('(car)', function (error) {
+                Q.ok(!error.ok);
+                Q.equal(error.reason, "expected at least 1 items, got nil\n");
+                return true;
+            });
         });
 
         Q.test("cdr works", function () {

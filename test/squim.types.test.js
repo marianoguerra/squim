@@ -371,6 +371,16 @@
             Q.equal(args.name.value, "asd");
         });
 
+        // expect at least one argument, send nil
+        check('', ["num", "name"], true, [T.Int, T.Int],
+            function () {
+                Q.ok(false, "shouldn't come to this function");
+            },
+            function (error) {
+                Q.equal(error.reason, "expected at least 2 items, got nil\n");
+            });
+
+
         // type error with error callback
         check('1 "asd"', ["num", "name"], true, [T.Int, T.Int],
             function () {
