@@ -16,7 +16,11 @@
     }
 }(this, function (Q, Squim) {
     "use strict";
-    var obj = {}, Types = Squim.types, Symbol = Squim.types.Symbol;
+    var
+        obj = {},
+        Types = Squim.types,
+        T = Types,
+        Symbol = Squim.types.Symbol;
 
     obj.test = function () {
 
@@ -318,6 +322,78 @@
             Q.equal(result.reason, "expected 'avg' to be of type #[int], got 1.2\n");
         });
     };
+
+    Q.test("withParams works", function () {
+        var env = Types.Env.makeGround();
+
+        function check(listStr, names, exactNumber, types, callback, onError) {
+            var
+                result,
+                list = Squim.run("(list " + listStr + ")", env),
+                cc   = new T.Cc(list, env, function (args) {
+                    throw args;
+                });
+
+            function wrappedCallback() {
+                var result = callback.apply(null, arguments);
+
+                Q.start();
+                return result;
+            }
+
+            function wrappedOnError() {
+                var result = null;
+
+                Q.start();
+                result = onError.apply(null, arguments);
+
+                return result;
+            }
+
+            Q.stop();
+            result = Squim.trampoline(
+                T.util.withParams(list, cc, names, exactNumber, types,
+                                  wrappedCallback,
+                                  (onError) ? wrappedOnError : onError));
+
+            return result;
+        }
+
+        // exact params and correct matching
+        check('1 "asd"', ["num", "name"], true, [T.Int, T.Str], function (args) {
+            Q.equal(args.num.value, 1);
+            Q.equal(args.name.value, "asd");
+        });
+
+        // more params allowed and correct matching
+        check('1 "asd" 4 #t', ["num", "name"], false, [T.Int, T.Str], function (args) {
+            Q.equal(args.num.value, 1);
+            Q.equal(args.name.value, "asd");
+        });
+
+        // type error with error callback
+        check('1 "asd"', ["num", "name"], true, [T.Int, T.Int],
+            function () {
+                Q.ok(false, "shouldn't come to this function");
+            },
+            function (error) {
+                Q.equal(error.reason, "expected 'name' to be of type #[int], got \"asd\"\n");
+            });
+
+        // type error without error callback should raise exception
+        Q.raises(function () {
+            check('1 "asd"', ["num", "name"], true, [T.Int, T.Int],
+                function () {
+                    Q.ok(false, "shouldn't come to this function");
+                });
+        }, function (error) {
+            Q.start();
+            Q.ok(!error.ok, "it's actually an error");
+            Q.equal(error.reason, "expected 'name' to be of type #[int], got \"asd\"\n", "the reason is the correct one");
+            return true;
+        });
+
+    });
 
     return obj;
 }));

@@ -971,7 +971,7 @@
 
     obj.util.withParams = function (args, cc, names, exactNumber, types, callback, errorCallback) {
         return new Cc(args, cc.env, function (eargs) {
-            var result = obj.util.matchList(eargs, names, true, types);
+            var result = obj.util.matchList(eargs, names, exactNumber, types);
 
             if (result.ok) {
                 return callback(result.val);
