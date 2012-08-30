@@ -40,7 +40,8 @@
         EnvironmentExpected: "EnvironmentExpected",
         BadMatch: "BadMatch",
         MutationError: "MutationError",
-        ValueError: "ValueError"
+        ValueError: "ValueError",
+        CallableExpected: "CallableExpected"
     };
 
     obj.UnboundSymbol = function (name, ctx) {
@@ -61,6 +62,10 @@
 
     obj.SymbolExpected = function (got, ctx) {
         throw makeException(obj.type.SymbolExpected, {got: got, ctx: ctx});
+    };
+
+    obj.CallableExpected = function (got, ctx) {
+        throw makeException(obj.type.CallableExpected, {got: got, ctx: ctx});
     };
 
     obj.EnvironmentExpected = function (got, ctx) {

@@ -770,7 +770,11 @@
         // TODO check that this.left is a combiner
         var pair = this;
         return new Cc(pair.left, cc.env, function (left) {
-            return left.apply(null, [pair.right, cc]);
+            if (left.apply instanceof Function) {
+                return left.apply(null, [pair.right, cc]);
+            } else {
+                throw Error.CallableExpected(left.toString(), {pair: pair, cc: cc, value: left});
+            }
         }, cc);
     };
 

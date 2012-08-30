@@ -404,6 +404,20 @@
 
         });
 
+        Q.test("gets CallableExpected when calling non callable", function () {
+            Q.raises(function () {
+                T.run(new T.Pair(T.t, T.nil), T.Env.makeGround());
+            }, function (error) {
+                Q.equal(error.name, "CallableExpected");
+                Q.equal(error.args.got, "#t");
+                Q.equal(error.args.ctx.value.value, true);
+                Q.equal(error.args.ctx.pair.left.value, true);
+                Q.equal(error.args.ctx.pair.right, T.nil);
+
+                return true;
+            });
+        });
+
     };
 
     return obj;
