@@ -67,6 +67,13 @@
         );
     }
 
+    function expectWithParamsReason(expr, reason) {
+        return expectWithParamsError(expr, function (error) {
+            Q.ok(!error.ok, expr + " should cause an error");
+            Q.equal(error.reason, reason, "cause should be '" + reason + "'");
+        });
+    }
+
     obj.test = function () {
         Q.module("Squim mods");
 
@@ -184,9 +191,10 @@
             check('($if (eq? 1 1) (boolean? #t) "asd")', true);
             check('($if (eq? 1 2) (boolean? #t) "asd")', "asd");
 
-            expectError('($if)', Squim.errors.type.BadMatch);
-            expectError('($if #t)', Squim.errors.type.BadMatch);
-            expectError('($if #t 1)', Squim.errors.type.BadMatch);
+            expectWithParamsReason('($if)', "expected at least 3 items, got nil\n");
+
+            expectWithParamsReason('($if #t)', "expected exactly 3 items\n");
+            expectWithParamsReason('($if #t 1)', "expected exactly 3 items\n");
             expectError('($if 8 #t #t)', Squim.errors.type.BooleanExpected);
 
         });
@@ -278,20 +286,9 @@
             check("(cons 1 2)", 1, 2);
             check("(cons foo bar)", 2, false);
 
-            expectWithParamsError('(cons)', function (error) {
-                Q.ok(!error.ok, "(cons) should cause an error");
-                Q.equal(error.reason, "expected at least 2 items, got nil\n", "the reason should be the correct one");
-            });
-
-            expectWithParamsError('(cons 1)', function (error) {
-                Q.ok(!error.ok, "(cons 1) should cause an error");
-                Q.equal(error.reason, "expected exactly 2 items\n");
-            });
-
-            expectWithParamsError('(cons 1 2 3)', function (error) {
-                Q.ok(!error.ok, "(cons 1 2 3) should cause an error");
-                Q.equal(error.reason, "expected exactly 2 items\n");
-            });
+            expectWithParamsReason('(cons)', "expected at least 2 items, got nil\n", "the reason should be the correct one");
+            expectWithParamsReason('(cons 1)', "expected exactly 2 items\n");
+            expectWithParamsReason('(cons 1 2 3)', "expected exactly 2 items\n");
         });
 
         Q.test("make-environment works", function () {

@@ -25,6 +25,7 @@
         Symbol = Types.Symbol,
         T = Types,
         withParams = T.util.withParams,
+        withUnevaluatedParams = T.util.withUnevaluatedParams,
         // (formals eformals . expr)
         vauNames = new Pair(new Symbol("formals"), new Pair(new Symbol("eformal"), new Symbol("expr")));
 
@@ -312,19 +313,19 @@
     };
 
     obj.k_if = function (args, cc) {
-        var parts = Types.util.gatherArguments(args, ["condition", "thenBlock", "elseBlock"]);
-
-        return new Cc(parts.condition, cc.env, function (condResult) {
-            if (condResult instanceof Types.Bool) {
-                if (condResult.value === true) {
-                    return new Cc(parts.thenBlock, cc.env, cc.cont, cc);
+        return withUnevaluatedParams(args, ["condition", "thenBlock", "elseBlock"], true, undefined, function (parts) {
+            return new Cc(parts.condition, cc.env, function (condResult) {
+                if (condResult instanceof Types.Bool) {
+                    if (condResult.value === true) {
+                        return new Cc(parts.thenBlock, cc.env, cc.cont, cc);
+                    } else {
+                        return new Cc(parts.elseBlock, cc.env, cc.cont, cc);
+                    }
                 } else {
-                    return new Cc(parts.elseBlock, cc.env, cc.cont, cc);
+                    return Error.BooleanExpected(condResult, {args: args, env: cc.env});
                 }
-            } else {
-                return Error.BooleanExpected(condResult, {args: args, env: cc.env});
-            }
-        }, cc);
+            }, cc);
+        });
     };
 
     obj.k_cond = function (args, cc) {
