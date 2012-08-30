@@ -427,59 +427,32 @@
         }
     }
 
-    obj.k_add_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOp('+', eargs, 0, 0));
-        }, cc, true);
-    };
+    function op(opSymbol, min, defaultForZeroArgs) {
+        return function (args, cc) {
+            return new Cc(args, cc.env, function (eargs) {
+                return cc.resolve(applyOp(opSymbol, eargs, min, defaultForZeroArgs));
+            }, cc, true);
+        };
+    }
 
-    obj.k_sub_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOp('-', eargs, 2, null));
-        }, cc, true);
-    };
+    function opByPairs(op, defaultForZeroArgs) {
+        return function (args, cc) {
+            return new Cc(args, cc.env, function (eargs) {
+                return cc.resolve(applyOpByPairs(op, eargs, defaultForZeroArgs));
+            }, cc, true);
+        };
+    }
 
-    obj.k_mul_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOp('*', eargs, 0, 1));
-        }, cc, true);
-    };
+    obj.k_add_op = op('+', 0, 0);
+    obj.k_sub_op = op('-', 2, null);
+    obj.k_mul_op = op('*', 0, 1);
+    obj.k_div_op = op('/', 2, null);
 
-    obj.k_div_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOp('/', eargs, 2, null));
-        }, cc, true);
-    };
-
-    obj.k_eq_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOpByPairs('=?', eargs, Types.t));
-        }, cc, true);
-    };
-
-    obj.k_lt_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOpByPairs('<?', eargs, Types.t));
-        }, cc, true);
-    };
-
-    obj.k_gt_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOpByPairs('>?', eargs, Types.t));
-        }, cc, true);
-    };
-
-    obj.k_le_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOpByPairs('<=?', eargs, Types.t));
-        }, cc, true);
-    };
-
-    obj.k_ge_op = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            return cc.resolve(applyOpByPairs('>=?', eargs, Types.t));
-        }, cc, true);
-    };
+    obj.k_eq_op = opByPairs('=?', Types.t);
+    obj.k_lt_op = opByPairs('<?', Types.t);
+    obj.k_gt_op = opByPairs('>?', Types.t);
+    obj.k_le_op = opByPairs('<=?', Types.t);
+    obj.k_ge_op = opByPairs('>=?', Types.t);
 
     obj.makeGround = function () {
         var
