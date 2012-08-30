@@ -59,15 +59,9 @@
     };
 
     obj.k_wrap = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            var parts = Types.util.gatherArguments(eargs, ["operative"], true);
-
-            if (!(parts.operative instanceof Types.Operative)) {
-                return Error.BadMatch("expected combiner", {arg: parts.operative});
-            }
-
-            return cc.resolve(new Types.Applicative(parts.operative));
-        }, cc, true);
+        return withParams(args, cc, ["operative"], true, [T.Operative], function (eargs) {
+            return cc.resolve(new Types.Applicative(eargs.operative));
+        });
     };
 
     obj.k_apply = function (args, cc) {

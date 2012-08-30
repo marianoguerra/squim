@@ -351,6 +351,15 @@
             check('(operative? (unwrap (wrap ($vau () #ignore 1))))', true);
         });
 
+        Q.test("wrap works", function () {
+            var result;
+
+            check('(applicative? (wrap ($vau () #ignore 1)))', true);
+
+            result = Squim.run('((wrap ($vau x #ignore x)) 1 2 3)');
+            Q.deepEqual(result.toJs(), [1, 2, 3]);
+        });
+
         Q.test("$sequence works", function () {
             check('($sequence)', Types.inert, true);
             check('($sequence 1)', 1);
