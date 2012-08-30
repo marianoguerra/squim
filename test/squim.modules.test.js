@@ -422,7 +422,17 @@
             Q.deepEqual(Squim.run('(cdr (list 1 2))').left.value, 2);
             check('(cdr (cons 1 2))', 2);
 
-            expectError('(cdr 1)', Squim.errors.type.ListExpected);
+            expectWithParamsError('(cdr 1)', function (error) {
+                Q.ok(!error.ok);
+                Q.equal(error.reason, "expected 'pair' to be of type #[pair], got 1\n");
+                return true;
+            });
+
+            expectWithParamsError('(cdr)', function (error) {
+                Q.ok(!error.ok);
+                Q.equal(error.reason, "expected at least 1 items, got nil\n");
+                return true;
+            });
         });
 
         Q.test("$lambda works", function () {

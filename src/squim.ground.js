@@ -105,15 +105,9 @@
     };
 
     obj.k_cdr = function (args, cc) {
-        return new Cc(args, cc.env, function (eargs) {
-            var parts = Types.util.gatherArguments(eargs, ["pair"], true);
-
-            if (!(parts.pair instanceof Types.Pair)) {
-                return Error.ListExpected(parts.pair, {args: args, env: cc.env});
-            }
-
-            return cc.resolve(parts.pair.right);
-        }, cc, true);
+        return withParams(args, cc, ["pair"], true, [Types.Pair], function (eargs) {
+            return cc.resolve(eargs.pair.right);
+        });
     };
 
     obj.k_list = function (args, cc) {
