@@ -85,6 +85,26 @@
             Q.equal(values.headers.right.left.attrs.childs.right.right.right.left.attrs.childs.left.value, "3.1");
             Q.equal(values.headers.right.left.attrs.childs.right.right.right.left.attrs.childs.right.left.value, "3.2");
         });
+
+        Q.test("complex comparison", function () {
+            var result, values, code = '($define! result (<=? (value msg errorThreshold) :{hint "objattrs"} (value msg currentValue) :{hint "objattrs"}) :{hint "compare"})';
+
+            result = runCode(code, {
+                "value": {
+                    "msg": {
+                        "errorThreshold": 70,
+                        "currentValue": 80
+                    }
+                }
+            });
+
+            values = result.bindings;
+
+            Q.equal(values.result.value, true);
+            Q.equal(values.value.attrs.msg.attrs.errorThreshold.value, 70);
+            Q.equal(values.value.attrs.msg.attrs.currentValue.value, 80);
+        });
+
     };
 
     return obj;
