@@ -462,12 +462,16 @@
 
     Pair.nil = new Pair.Nil();
 
-    function Obj(attrs) {
+    function resolveAttr(key, attrs, dest, cc) {
+        dest[key] = obj.run(attrs[key], cc.env);
+    }
+
+    function Obj(attrs, resolveAttrs) {
         if (attrs === undefined || attrs === null) {
             attrs = {};
         }
 
-        this._firstEval = true;
+        this._resolveAttrs = resolveAttrs;
         this.attrs = attrs;
     }
 
@@ -477,24 +481,20 @@
 
     Obj.prototype = new Type(null);
 
-    function resolveAttr(key, attrs, cc) {
-        attrs[key] = obj.run(attrs[key], cc.env);
-    }
-
     Obj.prototype.eval_ = function (cc) {
-        var key, values;
+        var key, dest = {};
 
-        if (this._firstEval) {
-            values = [];
-            this._firstEval = false;
+        if (this._resolveAttrs) {
 
             for (key in this.attrs) {
-                resolveAttr(key, this.attrs, cc);
+                resolveAttr(key, this.attrs, dest, cc);
             }
         }
 
-        return cc.resolve(this);
+        return cc.resolve(new Obj(dest, false));
     };
+
+    Obj.prototype._expand = Obj.prototype.eval_;
 
     Obj.prototype.eq_p = function (obj) {
         return this === obj;

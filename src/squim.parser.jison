@@ -58,7 +58,7 @@ obj :
       '{' '}'
     	{$$ = new Types.Obj();}
     | '{' objPairs '}'
-    	{$$ = new Types.Obj($2);}
+    	{$$ = new Types.Obj($2, true);}
     ;
 
 list :

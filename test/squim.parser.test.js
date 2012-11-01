@@ -154,21 +154,15 @@
             var env = Types.Env.fromJsObject({a: 1, b: "hi", c: false},
                                              [Types.Env.makeGround()]);
 
-            function evalObj(exp, expected, dontEval) {
+            function evalObj(exp, expected) {
                 (new Types.Cc(exp, env, function (obj) {
                     var key, value;
 
                     Q.ok(obj instanceof Types.Obj, "exp is instance of object");
-                    Q.ok(!obj._firstEval, "first eval is false");
 
                     for (key in expected) {
                         value = expected[key];
                         Q.deepEqual(obj.attrs[key].value, value, key + " is " + value);
-                    }
-
-                    if (!dontEval) {
-                        // test reevaling the evaled object to see if it works
-                        evalObj(obj, expected, true);
                     }
 
                     Q.start();
@@ -178,7 +172,6 @@
             function check(expr, expected) {
                 var exp = Parser.parse(expr);
                 Q.ok(exp instanceof Types.Obj, "exp is instance of object");
-                Q.ok(exp._firstEval, "first eval is true");
 
                 Q.stop();
                 evalObj(exp, expected);

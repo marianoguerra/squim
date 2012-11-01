@@ -105,6 +105,16 @@
             Q.equal(values.value.attrs.msg.attrs.currentValue.value, 80);
         });
 
+        Q.test("object resolves variables", function () {
+            var result, values, code = '($sequence ($define! fun ($lambda (a)  ($define! obj {f a}) (obj f))) ($define! r (list (fun 4) (fun 5))))';
+
+            result = runCode(code, {});
+            Q.equal(result.bindings.r.left.value, 4);
+            Q.equal(result.bindings.r.right.left.value, 5);
+            
+        });
+
+
     };
 
     return obj;

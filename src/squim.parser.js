@@ -26,7 +26,7 @@ case 5:
 break;
 case 6:this.$ = new Types.Obj();
 break;
-case 7:this.$ = new Types.Obj($$[$0-1]);
+case 7:this.$ = new Types.Obj($$[$0-1], true);
 break;
 case 8:this.$ = Types.nil;
 break;
