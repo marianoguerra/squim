@@ -4,18 +4,18 @@
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['json', 'squim.types', 'squim.error', 'squim.util', 'squim.parser'],
-               function (JSON, Types, Error, Util, Parser) {
+        define(['squim.types', 'squim.error', 'squim.util', 'squim.parser'],
+               function (Types, Error, Util, Parser) {
             // Also create a global in case some scripts
             // that are loaded still are looking for
             // a global even when an AMD loader is in use.
-            return (root.SquimGround = factory(JSON, Types, Error, Util, Parser));
+            return (root.SquimGround = factory(Types, Error, Util, Parser));
         });
     } else {
         // Browser globals
-        root.SquimGround = factory(JSON, SquimTypes, SquimError, SquimUtil, SquimParser);
+        root.SquimGround = factory(SquimTypes, SquimError, SquimUtil, SquimParser);
     }
-}(this, function (JSON, Types, Error, Util, Parser) {
+}(this, function (Types, Error, Util, Parser) {
     "use strict";
     var obj = {},
         Cc = Types.Cc,
