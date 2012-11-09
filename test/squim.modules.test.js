@@ -90,6 +90,19 @@
             check("(boolean? #f #t #t #f 1)", false);
         });
 
+        Q.test("string? works", function () {
+            check("(string? #t)", false);
+            check("(string? #f)", false);
+            check("(string? 1)", false);
+            check("(string? 1.2)", false);
+            check('(string? ())', false);
+            check('(string? (list 1))', false);
+            check('(string? "")', true);
+            check('(string? "a")', true);
+            check('(string? "a" "")', true);
+            check('(string? "a" "" 1)', false);
+        });
+
         Q.test("integer? works", function () {
             check("(integer? 1)", true);
             check("(integer? #x12)", true);

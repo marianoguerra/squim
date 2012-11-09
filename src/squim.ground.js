@@ -269,6 +269,7 @@
     obj.k_integer_p = type_p(Types.Int);
     obj.k_number_p = type_p([Types.Int, Types.Float]);
 
+    obj.k_string_p = type_p(Types.Str);
     obj.k_boolean_p = type_p(Types.Bool);
     obj.k_symbol_p = type_p(Types.Symbol);
     obj.k_inert_p = type_p(Types.Inert);
@@ -465,6 +466,7 @@
                 "operative?": obj.k_operative_p,
                 "applicative?": obj.k_applicative_p,
                 "environment?": obj.k_environment_p,
+                "string?": obj.k_string_p,
                 "boolean?": obj.k_boolean_p,
                 "number?": obj.k_number_p,
                 "integer?": obj.k_integer_p,
