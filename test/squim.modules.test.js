@@ -35,6 +35,7 @@
         }
 
         Q.equal(value, expected, "" + expr + ": " + expected.toString());
+        return result;
     }
 
     function expectError(expr, errorName, msg) {
@@ -633,6 +634,31 @@
             check('(>=? 15 7 3 1)', true);
             check('(>=? 15 3 7 1)', false);
         });
+
+        Q.test("$and? works", function () {
+            check("($and? #f #t)", false);
+            check("($and?)", true);
+            check("($and? #t)", true);
+            check("($and? #t #t)", true);
+            check("($and? #f)", false);
+            check("($and? #t #t #f #t)", false);
+            check("($and? #t #t #f 1)", false);
+            // if it doesn't short circuit then the last one would explode
+            check('($and? #t #t #f (1))', false);
+        });
+
+        Q.test("$or? works", function () {
+            check("($or?)", false);
+            check("($or? #t)", true);
+            check("($or? #f #t)", true);
+            check("($or? #f)", false);
+            check("($or? #f #f #f)", false);
+            check("($or? #f #f #f #t)", true);
+            check("($or? #f #f #f #t #f)", true);
+            // if it doesn't short circuit then the last one would explode
+            check('($or? #t (1))', true);
+        });
+
     };
 
     return obj;

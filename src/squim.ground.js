@@ -131,6 +131,47 @@
         }, cc);
     }
 
+    // keep evaling the left side until condition returns non null or end
+    // if condition returns non null use that value to resolve the continueation
+    // if end is reached resolve with valueOnEnd
+    function evalLeftWhile(remaining, cc, condition, valueOnEnd) {
+        if (remaining === Types.nil) {
+            return cc.resolve(valueOnEnd);
+        }
+
+        return new Cc(remaining.left, cc.env, function (result) {
+            var conditionResult = condition(result);
+
+            if (conditionResult !== null) {
+                return cc.resolve(conditionResult);
+            } else if (remaining.right === Types.nil) {
+                return cc.resolve(valueOnEnd);
+            } else {
+                return evalLeftWhile(remaining.right, cc, condition, valueOnEnd);
+            }
+        }, cc);
+    }
+
+    function k_$and_p(args, cc) {
+        return evalLeftWhile(args, cc, function (value) {
+            if (value === T.t) {
+                return null;
+            } else {
+                return T.f;
+            }
+        }, T.t);
+    }
+
+    function k_$or_p(args, cc) {
+        return evalLeftWhile(args, cc, function (value) {
+            if (value !== T.t) {
+                return null;
+            } else {
+                return T.t;
+            }
+        }, T.f);
+    }
+
     obj.k_sequence = function (args, cc) {
         return evalSequenceLeft(args, cc);
     };
@@ -476,6 +517,9 @@
                 "ignore?": obj.k_ignore_p,
                 "null?": obj.k_null_p,
                 "pair?": obj.k_pair_p,
+
+                "$and?": k_$and_p,
+                "$or?": k_$or_p,
 
                 "+": obj.k_add_op,
                 "-": obj.k_sub_op,
