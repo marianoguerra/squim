@@ -508,14 +508,12 @@
         for (key in this.attrs) {
             attr = this.attrs[key];
 
-            if (attr instanceof Pair) {
+            if (attr.toJs) {
                 val = attr.toJs();
-            } else if (attr instanceof Pair.Nil) {
-                val = [];
-            } else if (attr instanceof Obj) {
-                val = attr.toJs();
-            } else {
+            } else if (attr.value !== undefined) {
                 val = attr.value;
+            } else {
+                val = attr;
             }
 
             attrs[key] = val;
@@ -641,10 +639,18 @@
 
     // if shallow is true then don't convert parents toJs
     Env.prototype.toJs = function (shallow) {
-        var i, parents = [], key, bindings = {};
+        var i, value, parents = [], key, bindings = {};
 
         for (key in this.bindings) {
-            bindings[key] = this.bindings[key].toJs();
+            value = this.bindings[key];
+
+            // if it doesn't have toJs function leave it as it's
+            // (undefined and functions)
+            if (value.toJs) {
+                bindings[key] = value.toJs();
+            } else {
+                bindings[key] = value;
+            }
         }
 
         if (!shallow) {
@@ -876,6 +882,9 @@
             return new obj.Int(item);
         } else if (type === "number") {
             return new obj.Float(item);
+        } else if (type === "function") {
+            // leave functions as they are
+            return item;
         } else if (Util.isArray(item)) {
             if (item.length === 0) {
                 return obj.nil;
@@ -912,6 +921,9 @@
             return obj.nil;
         } else if (item instanceof Object) {
             return Obj.fromJsObject(item);
+        } else if (item === undefined) {
+            // leave undefined as it is
+            return item;
         } else {
             throw "unknown type for item: " + item;
         }
