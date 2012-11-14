@@ -671,6 +671,24 @@
             Q.deepEqual(result, [2, 3, 4, 5, 6]);
         });
 
+        Q.test("for-each works", function () {
+            var result;
+
+            result = Squim.run("($sequence ($define! env (get-current-environment)) ($define! a 4) (for-each ($lambda (b) ($set! env a (+ b 1))) (list 4)) a)");
+            Q.equal(result.value, 5);
+
+            result = Squim.run("($sequence ($define! env (get-current-environment)) ($define! a (list 4)) (for-each ($lambda (b) ($set! env a (cons (+ b 1) a))) (list 4 5 6)) a)");
+            Q.deepEqual(result.toJs(), [7, 6, 5, 4]);
+
+        });
+
+        Q.test("$set! works", function () {
+            var result = Squim.run("($sequence ($define! a 42) ($define! env (get-current-environment)) (($lambda () ($set! env a (+ a 1)) ($set! env b 7))) (list a b))");
+
+            Q.equal(result.left.value, 43);
+            Q.equal(result.right.left.value, 7);
+        });
+
     };
 
     return obj;

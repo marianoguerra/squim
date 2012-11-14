@@ -161,6 +161,29 @@
         });
     }
 
+    function k_for_each(args, cc) {
+        return withParams(args, cc, ["fun", "items"], true, [T.Applicative, undefined], function (eargs) {
+            var
+                item,
+                resultPair,
+
+                fun = eargs.fun,
+                items = eargs.items;
+
+            if (items === T.nil) {
+                return cc.resolve(T.inert);
+            } else if (items instanceof T.Pair) {
+                items.forEach(function (item) {
+                    T.run(pair2(fun, item), cc.env);
+                });
+
+                return cc.resolve(T.inert);
+            } else {
+                return Error.ListExpected(items, {cc: cc, args: args});
+            }
+        });
+    }
+
     // keep evaling the left side until condition returns non null or end
     // if condition returns non null use that value to resolve the continueation
     // if end is reached resolve with valueOnEnd
@@ -245,6 +268,31 @@
             cc.env.define(name, evaledValue);
             return cc.resolve(Types.inert);
         }, cc);
+    };
+
+    obj.k_set = function (args, cc) {
+        if (args instanceof T.Pair) {
+            return new Cc(args.left, cc.env, function (env) {
+                if (args.right && args.right.left && args.right.right) {
+                    var
+                        name = args.right.left,
+                        value = args.right.right.left;
+
+                    if (name instanceof T.Symbol) {
+                        return new Cc(value, cc.env, function (evalue) {
+                            env.define(name, evalue);
+                            return cc.resolve(T.inert);
+                        });
+                    } else {
+                        return Error.SymbolExpected(name, {cc: cc, args: args, env: env});
+                    }
+                } else {
+                    return Error.BadMatch("$set! expects env name value", {args: args, cc: cc});
+                }
+            });
+        } else {
+            return Error.BadMatch("$set! expects env name value", {args: args, cc: cc});
+        }
     };
 
     obj.k_display = function (args, cc) {
@@ -531,6 +579,7 @@
             ground = new Types.Env({
                 "$lambda": obj.k_lambda,
                 "$define!": obj.k_define,
+                "$set!": obj.k_set,
                 "display": obj.k_display,
 
                 "continuation?": obj.k_continuation_p,
@@ -573,6 +622,7 @@
                 "get-current-environment": obj.k_get_current_environment,
 
                 "map": k_map,
+                "for-each": k_for_each,
 
                 "eval": obj.k_eval,
                 "$vau": obj.k_vau,
