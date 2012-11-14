@@ -659,6 +659,18 @@
             check('($or? #t (1))', true);
         });
 
+        Q.test("map works", function () {
+            var result;
+
+            check("(map ($lambda (a) (+ a 1)) ())", Types.nil, true);
+
+            result = Squim.run("(map ($lambda (a) (+ a 1)) (list 1))").toJs();
+            Q.deepEqual(result, [2]);
+
+            result = Squim.run("(map ($lambda (a) (+ a 1)) (list 1 2 3 4 5))").toJs();
+            Q.deepEqual(result, [2, 3, 4, 5, 6]);
+        });
+
     };
 
     return obj;

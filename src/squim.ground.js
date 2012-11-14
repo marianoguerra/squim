@@ -131,6 +131,36 @@
         }, cc);
     }
 
+    function pair2(left, right) {
+        return new T.Pair(left, new T.Pair(right, T.nil));
+    }
+
+    function k_map(args, cc) {
+        return withParams(args, cc, ["fun", "items"], true, [T.Applicative, undefined], function (eargs) {
+            var
+                item,
+                resultPair,
+
+                result = [],
+                fun = eargs.fun,
+                items = eargs.items;
+
+            if (items === T.nil) {
+                return cc.resolve(T.nil);
+            } else if (items instanceof T.Pair) {
+                items.forEach(function (item) {
+                    item = T.run(pair2(fun, item), cc.env);
+                    result.push(item);
+                });
+
+                resultPair = T.util.arrayToPair(result);
+                return cc.resolve(resultPair);
+            } else {
+                return Error.ListExpected(items, {cc: cc, args: args});
+            }
+        });
+    }
+
     // keep evaling the left side until condition returns non null or end
     // if condition returns non null use that value to resolve the continueation
     // if end is reached resolve with valueOnEnd
@@ -541,6 +571,8 @@
                 "list": obj.k_list,
                 "make-environment": obj.k_make_environment,
                 "get-current-environment": obj.k_get_current_environment,
+
+                "map": k_map,
 
                 "eval": obj.k_eval,
                 "$vau": obj.k_vau,
